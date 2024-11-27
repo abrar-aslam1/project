@@ -1,11 +1,7 @@
 /* Font Face Declarations */
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-regular.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-regular.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -13,11 +9,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-italic.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-italic.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-italic.otf') format('opentype');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -25,11 +17,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-light.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-light.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -37,11 +25,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-lightitalic.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-lightitalic.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-lightitalic.otf') format('opentype');
   font-weight: 300;
   font-style: italic;
   font-display: swap;
@@ -49,11 +33,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-medium.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-medium.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -61,11 +41,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-mediumitalic.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-mediumitalic.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-mediumitalic.otf') format('opentype');
   font-weight: 500;
   font-style: italic;
   font-display: swap;
@@ -73,11 +49,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-semibold.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-semibold.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-semibold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -85,11 +57,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-semibolditalic.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-semibolditalic.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-semibolditalic.otf') format('opentype');
   font-weight: 600;
   font-style: italic;
   font-display: swap;
@@ -97,11 +65,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-bold.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-bold.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -109,11 +73,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-bolditalic.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-bolditalic.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-bolditalic.otf') format('opentype');
   font-weight: 700;
   font-style: italic;
   font-display: swap;
@@ -121,11 +81,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-extrabold.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-extrabold.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-extrabold.otf') format('opentype');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -133,11 +89,7 @@
 
 @font-face {
   font-family: 'Diaria Pro';
-<<<<<<< HEAD
-  src: url('../src/assets/fonts/diariapro-extrabolditalic.otf') format('opentype');
-=======
-  src: url('/fonts/diariapro-extrabolditalic.otf') format('opentype');
->>>>>>> 638fc5324eb25f7c81ad7488327b51d878944751
+  src: url('./assets/fonts/diariapro-extrabolditalic.otf') format('opentype');
   font-weight: 800;
   font-style: italic;
   font-display: swap;
