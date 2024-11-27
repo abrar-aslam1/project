@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogIn, LogOut, User } from 'lucide-react';
+import { LogIn, LogOut, User, Edit2 } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
@@ -7,27 +7,101 @@ import { Label } from "../components/ui/label";
 import { useAuth } from '../hooks/useAuth';
 
 export function AuthButton() {
-  const { user, signIn, signOut } = useAuth();
+  const { user, signIn, signOut, updateDisplayName } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState('');
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     try {
       await signIn(email, password);
       setIsOpen(false);
-    } catch (error) {
+      setEmail('');
+      setPassword('');
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        setError('No account found with this email');
+      } else if (error.code === 'auth/wrong-password') {
+        setError('Incorrect password');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('Invalid email format');
+      } else if (error.code === 'auth/too-many-requests') {
+        setError('Too many attempts. Please try again later');
+      } else {
+        setError('Failed to sign in. Please try again');
+      }
       console.error('Sign in error:', error);
     }
+  };
+
+  const handleUpdateDisplayName = async () => {
+    try {
+      await updateDisplayName(newDisplayName);
+      setIsEditingName(false);
+      setNewDisplayName('');
+    } catch (error) {
+      console.error('Failed to update display name:', error);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setIsOpen(false);
+    setError(null);
+    setEmail('');
+    setPassword('');
   };
 
   if (user) {
     return (
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900">
-          <User className="h-4 w-4" />
-          <span className="text-sm">{user.email}</span>
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-2 mb-1">
+            {isEditingName ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  value={newDisplayName}
+                  onChange={(e) => setNewDisplayName(e.target.value)}
+                  placeholder="New display name"
+                  className="h-6 text-sm"
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleUpdateDisplayName}
+                  className="h-6 px-2"
+                >
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <>
+                <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                  {user.displayName}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsEditingName(true);
+                    setNewDisplayName(user.displayName || '');
+                  }}
+                  className="h-6 w-6 p-0"
+                >
+                  <Edit2 className="h-3 w-3" />
+                </Button>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900">
+            <User className="h-4 w-4" />
+            <span className="text-sm">{user.email}</span>
+          </div>
         </div>
         <Button variant="ghost" size="icon" onClick={signOut}>
           <LogOut className="h-5 w-5" />
@@ -37,7 +111,7 @@ export function AuthButton() {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <LogIn className="h-5 w-5 mr-2" />
@@ -49,6 +123,11 @@ export function AuthButton() {
           <DialogTitle>Sign In</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSignIn} className="space-y-4">
+          {error && (
+            <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-md">
+              {error}
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
