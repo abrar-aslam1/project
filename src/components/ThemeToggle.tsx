@@ -25,9 +25,9 @@ export function ThemeToggle({ isDarkMode, onToggleDarkMode }: ThemeToggleProps) 
     >
       <div className="absolute inset-0 flex items-center justify-center">
         {isDarkMode ? (
-          <Sun className="h-5 w-5 text-amber-500 transition-all duration-300" />
+          <Moon className="h-5 w-5 text-purple-400 transition-all duration-300" />
         ) : (
-          <Moon className="h-5 w-5 text-purple-500 dark:text-purple-400 transition-all duration-300" />
+          <Sun className="h-5 w-5 text-amber-500 transition-all duration-300" />
         )}
       </div>
     </Button>

@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 
 export function useDarkMode() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage first, if not set default to true for dark mode
+    // Always start with dark mode by default
+    document.documentElement.classList.add('dark');
+    // Only use localStorage if it explicitly sets light mode
     const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme === 'dark' : true;
+    return savedTheme !== 'light';
   });
 
   useEffect(() => {
@@ -17,7 +19,7 @@ export function useDarkMode() {
 
     // Save preference to localStorage
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]); // Run when isDarkMode changes
+  }, [isDarkMode]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(prev => !prev);

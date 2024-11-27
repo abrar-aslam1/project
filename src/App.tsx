@@ -15,6 +15,11 @@ export default function HomePage() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { news, loading, error } = useNews(activeCategory, activeSubCategory);
 
+  // Force dark mode class on mount
+  useState(() => {
+    document.documentElement.classList.add('dark');
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Header 
