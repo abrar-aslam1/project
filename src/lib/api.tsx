@@ -3,9 +3,6 @@ import axios from 'axios';
 import { TrendingUp, Zap, Lock, Cpu } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 
-const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
-const RAPIDAPI_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
-
 const getIconForCategory = (title: string): React.ReactElement => {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('bitcoin') || lowerTitle.includes('btc')) {
@@ -94,14 +91,8 @@ const categorizeNews = (title: string): { category: string; subCategory: string 
 
 export const fetchCryptoNews = async (): Promise<NewsArticle[]> => {
   try {
-    const response = await axios.request({
-      method: 'GET',
-      url: 'https://crypto-news16.p.rapidapi.com/news/top/5',
-      headers: {
-        'X-RapidAPI-Key': RAPIDAPI_KEY,
-        'X-RapidAPI-Host': RAPIDAPI_HOST
-      }
-    });
+    // Use the Netlify function instead of calling RapidAPI directly
+    const response = await axios.get('/api/getCryptoNews');
 
     return response.data.map((item: any) => {
       const { category, subCategory } = categorizeNews(item.title);
