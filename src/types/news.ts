@@ -1,9 +1,4 @@
-export interface Category {
-  id: string;
-  name: string;
-  icon: JSX.Element;
-  subCategories: string[];
-}
+import { ReactElement } from 'react';
 
 export interface NewsArticle {
   id: string;
@@ -11,11 +6,18 @@ export interface NewsArticle {
   description: string;
   source: string;
   link: string;
-  icon: JSX.Element;
+  icon: ReactElement;
   category: string;
   subCategory: string;
   publishedAt: string;
   isFavorite?: boolean;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: ReactElement;
+  subCategories: string[];
 }
 
 export interface User {
@@ -23,5 +25,5 @@ export interface User {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
-  favorites: string[];
+  favorites?: string[];
 }

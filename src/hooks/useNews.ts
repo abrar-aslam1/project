@@ -1,43 +1,43 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { NewsArticle } from '../types/news';
-import { sampleNews } from '../data/sampleNews';
+import { fetchCryptoNews } from '../lib/api';
 
-export function useNews(activeCategory: string, activeSubCategory: string) {
-  const [news, setNews] = useState<NewsArticle[]>(sampleNews);
-  const [loading, setLoading] = useState(false);
+export const useNews = (selectedCategory: string, selectedSubCategory: string) => {
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchNews = async () => {
-      setLoading(true);
-      setError(null);
-      
+    const loadNews = async () => {
       try {
-        // In a real application, this would be an API call
-        // const response = await axios.get('/api/news', {
-        //   params: { category: activeCategory, subCategory: activeSubCategory }
-        // });
-        // setNews(response.data);
+        setLoading(true);
+        const allNews = await fetchCryptoNews();
         
-        // For now, we'll filter the sample news
-        const filtered = sampleNews.filter(article => {
-          const matchesCategory = activeCategory === 'all' || article.category === activeCategory;
-          const matchesSubCategory = activeSubCategory === 'all' || article.subCategory === activeSubCategory;
-          return matchesCategory && matchesSubCategory;
-        });
+        let filteredNews = allNews;
         
-        setNews(filtered);
+        if (selectedCategory !== 'all') {
+          filteredNews = allNews.filter(article => 
+            article.category.toLowerCase() === selectedCategory.toLowerCase()
+          );
+          
+          if (selectedSubCategory) {
+            filteredNews = filteredNews.filter(article =>
+              article.subCategory.toLowerCase() === selectedSubCategory.toLowerCase()
+            );
+          }
+        }
+        
+        setNews(filteredNews);
+        setError(null);
       } catch (err) {
-        setError('Failed to fetch news');
-        console.error('Error fetching news:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch news');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNews();
-  }, [activeCategory, activeSubCategory]);
+    loadNews();
+  }, [selectedCategory, selectedSubCategory]);
 
   return { news, loading, error };
-}
+};

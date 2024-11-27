@@ -1,12 +1,13 @@
-import { renderHook, act } from '@testing-library/react';
-import { useAuth } from '@/hooks/useAuth';
-import { auth } from '@/lib/firebase';
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { useAuth } from '../../hooks/useAuth';
+import { auth } from '../../lib/firebase';
+import { User } from 'firebase/auth';
 
-vi.mock('@/lib/firebase', () => ({
+// Mock firebase auth
+vi.mock('../../lib/firebase', () => ({
   auth: {
     onAuthStateChanged: vi.fn(),
-    signInWithEmailAndPassword: vi.fn(),
     signOut: vi.fn(),
   },
 }));
@@ -22,35 +23,31 @@ describe('useAuth', () => {
   });
 
   it('updates user on auth state change', async () => {
-    const mockUser = {
+    const mockUser: Partial<User> = {
       uid: '123',
       email: 'test@example.com',
       displayName: 'Test User',
-      photoURL: null,
+      photoURL: 'https://example.com/photo.jpg',
     };
 
-    (auth.onAuthStateChanged as any).mockImplementation((callback) => {
-      callback(mockUser);
+    (auth.onAuthStateChanged as any).mockImplementation((callback: (user: User | null) => void) => {
+      callback(mockUser as User);
       return () => {};
     });
 
     const { result } = renderHook(() => useAuth());
 
     expect(result.current.user).toEqual({
-      ...mockUser,
-      favorites: [],
+      uid: '123',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      photoURL: 'https://example.com/photo.jpg',
     });
   });
 
   it('handles sign out', async () => {
-    (auth.signOut as any).mockResolvedValue(undefined);
-
     const { result } = renderHook(() => useAuth());
-
-    await act(async () => {
-      await result.current.signOut();
-    });
-
+    await result.current.signOut();
     expect(auth.signOut).toHaveBeenCalled();
   });
 });

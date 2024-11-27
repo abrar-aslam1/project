@@ -1,23 +1,29 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { CategoryNav } from '@/components/CategoryNav';
-import { Globe } from 'lucide-react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { CategoryNav } from '../../components/CategoryNav';
+import { vi } from 'vitest';
 
 describe('CategoryNav', () => {
-  const mockCategories = [
-    {
-      id: 'all',
-      name: 'All News',
-      icon: <Globe className="h-5 w-5" />,
-      subCategories: [],
-    },
-  ];
-
   const mockProps = {
-    categories: mockCategories,
+    categories: [
+      {
+        id: 'all',
+        name: 'All News',
+        icon: <span>🌐</span>,
+        subCategories: []
+      },
+      {
+        id: 'bitcoin',
+        name: 'Bitcoin',
+        icon: <span>₿</span>,
+        subCategories: ['Mining', 'Trading']
+      }
+    ],
     activeCategory: 'all',
     activeSubCategory: 'all',
     onCategoryChange: vi.fn(),
-    onSubCategoryChange: vi.fn(),
+    onSubCategoryChange: vi.fn()
   };
 
   it('renders categories correctly', () => {
@@ -27,7 +33,7 @@ describe('CategoryNav', () => {
 
   it('calls onCategoryChange when clicking a category', () => {
     render(<CategoryNav {...mockProps} />);
-    fireEvent.click(screen.getByText('All News'));
+    userEvent.click(screen.getByText('All News'));
     expect(mockProps.onCategoryChange).toHaveBeenCalledWith('all');
   });
 });

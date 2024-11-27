@@ -1,11 +1,12 @@
+import * as React from 'react';
 import axios from 'axios';
 import { TrendingUp, Zap, Lock, Cpu } from 'lucide-react';
-import { NewsArticle } from '@/types/news';
+import { NewsArticle } from '../types/news';
 
-const RAPIDAPI_KEY = 'a10d6ce342mshebe3660d6f26f76p15bf55jsna1ad871ba1f5';
-const RAPIDAPI_HOST = 'crypto-news16.p.rapidapi.com';
+const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
+const RAPIDAPI_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
 
-const getIconForCategory = (title: string) => {
+const getIconForCategory = (title: string): React.ReactElement => {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('bitcoin') || lowerTitle.includes('btc')) {
     return <TrendingUp className="h-5 w-5" />;
