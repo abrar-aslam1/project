@@ -13,10 +13,10 @@ exports.handler = async function(event, context) {
       'Cache-Control': `public, max-age=${CACHE_DURATION}`
     };
 
-    // Make the API request
+    // Make the API request - changed to fetch top 20 articles
     const response = await axios.request({
       method: 'GET',
-      url: 'https://crypto-news16.p.rapidapi.com/news/top/5',
+      url: 'https://crypto-news16.p.rapidapi.com/news/top/20',
       headers: {
         'X-RapidAPI-Key': process.env.VITE_RAPIDAPI_KEY,
         'X-RapidAPI-Host': process.env.VITE_RAPIDAPI_HOST
