@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogIn, LogOut, User, Edit2 } from 'lucide-react';
+import { LogIn, LogOut, User, Edit2, Loader2 } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
@@ -7,26 +7,27 @@ import { Label } from "../components/ui/label";
 import { useAuth } from '../hooks/useAuth';
 
 export function AuthButton() {
-  const { user, signIn, signOut, updateDisplayName } = useAuth();
+  const { user, signIn, signOut, updateDisplayName, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsSubmitting(true);
     try {
       await signIn(email, password);
       setIsOpen(false);
       setEmail('');
       setPassword('');
     } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        setError('No account found with this email');
-      } else if (error.code === 'auth/wrong-password') {
+      console.error('Sign in error:', error);
+      if (error.code === 'auth/wrong-password') {
         setError('Incorrect password');
       } else if (error.code === 'auth/invalid-email') {
         setError('Invalid email format');
@@ -35,11 +36,13 @@ export function AuthButton() {
       } else {
         setError('Failed to sign in. Please try again');
       }
-      console.error('Sign in error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleUpdateDisplayName = async () => {
+    if (!newDisplayName.trim()) return;
     try {
       await updateDisplayName(newDisplayName);
       setIsEditingName(false);
@@ -50,11 +53,21 @@ export function AuthButton() {
   };
 
   const handleDialogClose = () => {
-    setIsOpen(false);
-    setError(null);
-    setEmail('');
-    setPassword('');
+    if (!isSubmitting) {
+      setIsOpen(false);
+      setError(null);
+      setEmail('');
+      setPassword('');
+    }
   };
+
+  if (loading) {
+    return (
+      <Button variant="ghost" disabled>
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </Button>
+    );
+  }
 
   if (user) {
     return (
@@ -103,7 +116,7 @@ export function AuthButton() {
             <span className="text-sm">{user.email}</span>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={signOut}>
+        <Button variant="ghost" size="icon" onClick={signOut} disabled={loading}>
           <LogOut className="h-5 w-5" />
         </Button>
       </div>
@@ -120,7 +133,7 @@ export function AuthButton() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sign In</DialogTitle>
+          <DialogTitle>Sign In or Create Account</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSignIn} className="space-y-4">
           {error && (
@@ -136,6 +149,7 @@ export function AuthButton() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -146,9 +160,21 @@ export function AuthButton() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isSubmitting}
+              minLength={6}
             />
+            <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
           </div>
-          <Button type="submit" className="w-full">Sign In</Button>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Processing...
+              </>
+            ) : (
+              'Sign In / Create Account'
+            )}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
