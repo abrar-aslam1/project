@@ -28,6 +28,20 @@ export function HeroSection() {
             <p className="italic">"In the realm of crypto, blockchain, and the future"</p>
             <p className="italic">"On the frontier of crypto, blockchain, and innovation"</p>
           </div>
+
+          <div className="mb-1.5">
+            <span className="text-xs sm:text-sm text-purple-300/80 uppercase tracking-wider">SIMILAR</span>
+          </div>
+          <div className="ml-5 text-gray-200 text-sm sm:text-base">
+            <p>
+              <span className="text-purple-300">Crypto Chad</span> • 
+              <span className="text-purple-300"> Chadus Maximus</span> • 
+              <span className="text-purple-300"> Blockchain Badass</span> • 
+              <span className="text-purple-300"> Diamond Hander</span> • 
+              <span className="text-purple-300"> Hash Hoss</span> • 
+              <span className="text-purple-300"> Merkel Madman</span>
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
