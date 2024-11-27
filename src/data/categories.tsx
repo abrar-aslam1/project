@@ -1,5 +1,5 @@
 import { Globe, Bitcoin, DollarSign, Lock, Cpu } from 'lucide-react';
-import { Category } from '@/types/news';
+import { Category } from '../types/news';
 
 export const categories: Category[] = [
   { 

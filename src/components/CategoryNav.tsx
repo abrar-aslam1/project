@@ -1,5 +1,3 @@
-import { ChevronDown } from 'lucide-react';
-import { Button } from "../components/ui/button";
 import { Category } from '../types/news';
 
 interface CategoryNavProps {
@@ -17,78 +15,52 @@ export function CategoryNav({
   onCategoryChange,
   onSubCategoryChange,
 }: CategoryNavProps) {
-  const activeCategories = categories.find(c => c.id === activeCategory);
-  const subCategories = activeCategories?.subCategories || [];
+  const activeMainCategory = categories.find(cat => cat.id === activeCategory);
+  const hasSubCategories = activeMainCategory?.subCategories && activeMainCategory.subCategories.length > 0;
 
   return (
-    <nav className="mb-12 glass-effect rounded-lg overflow-hidden theme-transition">
-      <ul className="flex flex-wrap">
+    <nav className="space-y-4 mb-8">
+      <div className="flex flex-wrap gap-4">
         {categories.map((category) => (
-          <li key={category.id} className="flex-grow">
-            <Button
-              variant="ghost"
-              className={`
-                w-full rounded-none flex items-center justify-center space-x-2 py-6
-                theme-transition
-                ${activeCategory === category.id
-                  ? "bg-gradient-to-br from-purple-500/20 to-blue-500/20 text-purple-400"
-                  : "hover:bg-gradient-to-br hover:from-purple-500/10 hover:to-blue-500/10 text-gray-400 hover:text-purple-400"
-                }
-              `}
-              onClick={() => {
-                onCategoryChange(category.id);
-                onSubCategoryChange('all');
-              }}
-            >
-              <span className={`
-                ${activeCategory === category.id ? 'text-purple-400' : 'text-gray-400'}
-              `}>
-                {category.icon}
-              </span>
-              <span>{category.name}</span>
-              {category.subCategories.length > 0 && (
-                <ChevronDown className={`
-                  h-4 w-4 transition-transform duration-200
-                  ${activeCategory === category.id ? 'rotate-180 text-purple-400' : 'text-gray-400'}
-                `} />
-              )}
-            </Button>
-          </li>
+          <button
+            key={category.id}
+            onClick={() => onCategoryChange(category.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+              activeCategory === category.id
+                ? 'bg-purple-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30'
+            }`}
+          >
+            {category.icon}
+            <span>{category.name}</span>
+          </button>
         ))}
-      </ul>
-      {activeCategory !== 'all' && subCategories.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-500/5 to-blue-500/5 p-4 flex flex-wrap justify-center">
-          <Button
-            key="all"
-            variant={activeSubCategory === 'all' ? "default" : "outline"}
-            size="sm"
-            className={`
-              m-1 rounded-full theme-transition
-              ${activeSubCategory === 'all'
-                ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600'
-                : 'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
-              }
-            `}
+      </div>
+
+      {hasSubCategories && (
+        <div className="flex flex-wrap gap-3">
+          <button
             onClick={() => onSubCategoryChange('all')}
+            className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+              activeSubCategory === 'all'
+                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
           >
             All
-          </Button>
-          {subCategories.map((subCategory) => (
-            <Button
+          </button>
+          {activeMainCategory?.subCategories.map((subCategory) => (
+            <button
               key={subCategory}
-              variant={activeSubCategory === subCategory ? "default" : "outline"}
-              size="sm"
-              className={`
-                m-1 rounded-full theme-transition
-                ${activeSubCategory === subCategory
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600'
-                  : 'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10'
-                }
-              `}
               onClick={() => onSubCategoryChange(subCategory)}
+              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                activeSubCategory === subCategory
+                  ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
             >
               {subCategory}
-            </Button>
+            </button>
           ))}
         </div>
       )}

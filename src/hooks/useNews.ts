@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '../types/news';
-import { fetchCryptoNews } from '../lib/api';
+import { fetchCryptoNews } from '../lib/api.tsx';  // Explicitly import from api.tsx
+import { sampleNews } from '../data/sampleNews';
 
 export const useNews = (selectedCategory: string, selectedSubCategory: string) => {
-  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [news, setNews] = useState<NewsArticle[]>(sampleNews); // Initialize with sample news
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,26 +12,48 @@ export const useNews = (selectedCategory: string, selectedSubCategory: string) =
     const loadNews = async () => {
       try {
         setLoading(true);
-        const allNews = await fetchCryptoNews();
+        let allNews: NewsArticle[];
+        
+        try {
+          console.log('Attempting to fetch news from API...');
+          allNews = await fetchCryptoNews();
+          console.log('API fetch successful, received articles:', allNews.length);
+          console.log('First article:', JSON.stringify(allNews[0], null, 2));
+        } catch (apiError) {
+          console.warn('Failed to fetch from API, using sample data:', apiError);
+          allNews = sampleNews;
+          console.log('Using sample news, articles:', allNews.length);
+          console.log('First sample article:', JSON.stringify(allNews[0], null, 2));
+        }
         
         let filteredNews = allNews;
         
         if (selectedCategory !== 'all') {
-          filteredNews = allNews.filter(article => 
-            article.category.toLowerCase() === selectedCategory.toLowerCase()
-          );
+          console.log(`Filtering by category: ${selectedCategory}`);
+          filteredNews = allNews.filter(article => {
+            const match = article.category.toLowerCase() === selectedCategory.toLowerCase();
+            console.log(`Article category: ${article.category}, match: ${match}`);
+            return match;
+          });
           
-          if (selectedSubCategory) {
-            filteredNews = filteredNews.filter(article =>
-              article.subCategory.toLowerCase() === selectedSubCategory.toLowerCase()
-            );
+          if (selectedSubCategory && selectedSubCategory !== 'all') {
+            console.log(`Filtering by subcategory: ${selectedSubCategory}`);
+            filteredNews = filteredNews.filter(article => {
+              const match = article.subCategory.toLowerCase() === selectedSubCategory.toLowerCase();
+              console.log(`Article subcategory: ${article.subCategory}, match: ${match}`);
+              return match;
+            });
           }
         }
         
-        setNews(filteredNews);
+        console.log('Final filtered news count:', filteredNews.length);
+        console.log('Final filtered news:', JSON.stringify(filteredNews, null, 2));
+        setNews(filteredNews.length > 0 ? filteredNews : sampleNews); // Fallback to sample news if no matches
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch news');
+        console.error('Error in useNews hook:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load news');
+        setNews(sampleNews); // Fallback to sample news on error
       } finally {
         setLoading(false);
       }
