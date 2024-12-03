@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { LogIn, LogOut, User, Edit2, Loader2 } from 'lucide-react';
-import { Button } from "../components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { useAuthContext } from './AuthProvider';
 
 export function AuthButton() {
@@ -49,15 +49,6 @@ export function AuthButton() {
       setNewDisplayName('');
     } catch (error) {
       console.error('Failed to update display name:', error);
-    }
-  };
-
-  const handleDialogClose = () => {
-    if (!isSubmitting) {
-      setIsOpen(false);
-      setError(null);
-      setEmail('');
-      setPassword('');
     }
   };
 
@@ -124,7 +115,7 @@ export function AuthButton() {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <LogIn className="h-5 w-5 mr-2" />
