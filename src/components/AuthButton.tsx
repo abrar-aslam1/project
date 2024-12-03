@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { LogIn, LogOut, User, Edit2, Loader2 } from 'lucide-react';
+import { LogIn, LogOut, User, Edit2, Loader2, UserPlus } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { useAuthContext } from './AuthProvider';
+import { useAuthContext } from '../hooks/useAuthContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export function AuthButton() {
-  const { user, signIn, signOut, updateDisplayName, loading } = useAuthContext();
+  const { user, signIn, createAccount, signOut, updateDisplayName, loading } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -33,8 +34,35 @@ export function AuthButton() {
         setError('Invalid email format');
       } else if (error.code === 'auth/too-many-requests') {
         setError('Too many attempts. Please try again later');
+      } else if (error.code === 'auth/user-not-found') {
+        setError('No account found with this email');
       } else {
         setError('Failed to sign in. Please try again');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await createAccount(email, password);
+      setIsOpen(false);
+      setEmail('');
+      setPassword('');
+    } catch (error: any) {
+      console.error('Account creation error:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        setError('An account already exists with this email');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('Invalid email format');
+      } else if (error.code === 'auth/weak-password') {
+        setError('Password is too weak');
+      } else {
+        setError('Failed to create account. Please try again');
       }
     } finally {
       setIsSubmitting(false);
@@ -124,49 +152,109 @@ export function AuthButton() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sign In or Create Account</DialogTitle>
+          <DialogTitle>Authentication</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSignIn} className="space-y-4">
-          {error && (
-            <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-md">
-              {error}
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isSubmitting}
-              minLength={6}
-            />
-            <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
-          </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Processing...
-              </>
-            ) : (
-              'Sign In / Create Account'
-            )}
-          </Button>
-        </form>
+        <Tabs defaultValue="signin" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Create Account</TabsTrigger>
+          </TabsList>
+          <TabsContent value="signin">
+            <form onSubmit={handleSignIn} className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-md">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="signin-email">Email</Label>
+                <Input
+                  id="signin-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  autoComplete="email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signin-password">Password</Label>
+                <Input
+                  id="signin-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  minLength={6}
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+          <TabsContent value="signup">
+            <form onSubmit={handleCreateAccount} className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-md">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="signup-email">Email</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  autoComplete="email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-password">Password</Label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  minLength={6}
+                  autoComplete="new-password"
+                />
+                <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
+              </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Create Account
+                  </>
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
