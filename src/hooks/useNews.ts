@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
-import { NewsArticle } from '../types/news';
+import { NewsArticle, NewsPreferences } from '../types/news';
 import { fetchCryptoNews } from '../lib/api.tsx';  // Explicitly import from api.tsx
 import { sampleNews } from '../data/sampleNews';
 
-export const useNews = (selectedCategory: string, selectedSubCategory: string) => {
+export const useNews = (
+  selectedCategory: string, 
+  selectedSubCategory: string,
+  userPreferences?: NewsPreferences
+) => {
   const [news, setNews] = useState<NewsArticle[]>(sampleNews); // Initialize with sample news
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +31,28 @@ export const useNews = (selectedCategory: string, selectedSubCategory: string) =
         }
         
         let filteredNews = allNews;
-        
-        if (selectedCategory !== 'all') {
+
+        // First apply user preferences if they exist and we're showing all categories
+        if (selectedCategory === 'all' && userPreferences?.categories) {
+          console.log('Filtering by user preferences:', userPreferences);
+          filteredNews = allNews.filter(article => {
+            // Check if article category matches any user preferred category
+            const categoryMatch = userPreferences.categories.some(
+              cat => article.category.toLowerCase() === cat.toLowerCase()
+            );
+            
+            // If subcategories exist, check those too
+            if (categoryMatch && userPreferences.subCategories && userPreferences.subCategories.length > 0) {
+              return userPreferences.subCategories.some(
+                sub => article.subCategory.toLowerCase() === sub.toLowerCase()
+              );
+            }
+            
+            return categoryMatch;
+          });
+        }
+        // Then apply specific category/subcategory filters if selected
+        else if (selectedCategory !== 'all') {
           console.log(`Filtering by category: ${selectedCategory}`);
           filteredNews = allNews.filter(article => {
             const match = article.category.toLowerCase() === selectedCategory.toLowerCase();
@@ -60,7 +84,7 @@ export const useNews = (selectedCategory: string, selectedSubCategory: string) =
     };
 
     loadNews();
-  }, [selectedCategory, selectedSubCategory]);
+  }, [selectedCategory, selectedSubCategory, userPreferences]);
 
   return { news, loading, error };
 };

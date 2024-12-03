@@ -8,13 +8,15 @@ import { categories } from './data/categories';
 import { useNews } from './hooks/useNews';
 import { useDarkMode } from './hooks/useDarkMode';
 import { AuthProvider } from './components/AuthProvider';
+import { useAuthContext } from './hooks/useAuthContext';
 import './App.css';
 
-export default function HomePage() {
+function AppContent() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeSubCategory, setActiveSubCategory] = useState('all');
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { news, loading, error } = useNews(activeCategory, activeSubCategory);
+  const { user } = useAuthContext();
+  const { news, loading, error } = useNews(activeCategory, activeSubCategory, user?.newsPreferences);
 
   // Force dark mode class on mount
   useState(() => {
@@ -22,48 +24,54 @@ export default function HomePage() {
   });
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-        <Header 
-          isDarkMode={isDarkMode} 
-          onToggleDarkMode={toggleDarkMode}
-        />
-        
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-7xl mx-auto">
-            <HeroSection />
-            
-            <div className="mt-12">
-              <CategoryNav
-                categories={categories}
-                activeCategory={activeCategory}
-                activeSubCategory={activeSubCategory}
-                onCategoryChange={setActiveCategory}
-                onSubCategoryChange={setActiveSubCategory}
-              />
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
+      <Header 
+        isDarkMode={isDarkMode} 
+        onToggleDarkMode={toggleDarkMode}
+      />
+      
+      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto">
+          <HeroSection />
+          
+          <div className="mt-12">
+            <CategoryNav
+              categories={categories}
+              activeCategory={activeCategory}
+              activeSubCategory={activeSubCategory}
+              onCategoryChange={setActiveCategory}
+              onSubCategoryChange={setActiveSubCategory}
+            />
 
-              {error && (
-                <div className="text-red-500 dark:text-red-400 text-center mb-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  {error}
-                </div>
-              )}
+            {error && (
+              <div className="text-red-500 dark:text-red-400 text-center mb-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                {error}
+              </div>
+            )}
 
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-                  <p className="mt-4 text-gray-600 dark:text-gray-400">Loading latest crypto news...</p>
-                </div>
-              ) : (
-                <div className="mt-8">
-                  <NewsGrid articles={news} />
-                </div>
-              )}
-            </div>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading latest crypto news...</p>
+              </div>
+            ) : (
+              <div className="mt-8">
+                <NewsGrid articles={news} />
+              </div>
+            )}
           </div>
-        </main>
+        </div>
+      </main>
 
-        <Footer />
-      </div>
+      <Footer />
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }
