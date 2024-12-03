@@ -20,10 +20,16 @@ export interface Category {
   subCategories: string[];
 }
 
+export interface NewsPreferences {
+  categories: string[];
+  subCategories: string[];
+}
+
 export interface User {
   uid: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
   favorites?: string[];
+  newsPreferences?: NewsPreferences;
 }

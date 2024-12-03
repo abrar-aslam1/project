@@ -1,8 +1,8 @@
 import { createContext, useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { User } from '../types/news';
+import { User, NewsPreferences } from '../types/news';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +11,9 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   updateDisplayName: (newDisplayName: string) => Promise<void>;
   loading: boolean;
+  showPreferences: boolean;
+  saveUserPreferences: (uid: string, preferences: NewsPreferences) => Promise<void>;
+  tempUser: FirebaseUser | null;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -20,6 +23,9 @@ export const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   updateDisplayName: async () => {},
   loading: false,
+  showPreferences: false,
+  saveUserPreferences: async () => {},
+  tempUser: null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

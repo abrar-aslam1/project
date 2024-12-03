@@ -10,31 +10,42 @@ import {
   AuthErrorCodes,
   fetchSignInMethodsForEmail
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
-import { User } from '../types/news';
+import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
+import { User, NewsPreferences } from '../types/news';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [tempUser, setTempUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         console.log('User authenticated:', firebaseUser.email);
-        console.log('User details:', {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          emailVerified: firebaseUser.emailVerified
-        });
         
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-          photoURL: firebaseUser.photoURL,
-          favorites: []
-        });
+        // Fetch user preferences from Firestore
+        try {
+          const preferences = await getUserPreferencesFromFirestore(firebaseUser.uid);
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            photoURL: firebaseUser.photoURL,
+            favorites: [],
+            newsPreferences: preferences || undefined
+          });
+        } catch (error) {
+          console.error('Error fetching preferences:', error);
+          // Still set the user even if preferences fetch fails
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            photoURL: firebaseUser.photoURL,
+            favorites: []
+          });
+        }
       } else {
         console.log('No user authenticated');
         setUser(null);
@@ -57,12 +68,10 @@ export function useAuth() {
       customData: error.customData
     });
 
-    // Check network connectivity
     if (!navigator.onLine) {
       throw new Error('No internet connection. Please check your network and try again.');
     }
 
-    // Map Firebase error codes to user-friendly messages
     let errorMessage = 'An error occurred. Please try again.';
     switch (error.code) {
       case AuthErrorCodes.EMAIL_EXISTS:
@@ -104,7 +113,6 @@ export function useAuth() {
       console.log('Attempting sign in with:', email);
       setLoading(true);
 
-      // Check if email exists first
       const methods = await fetchSignInMethodsForEmail(auth, email);
       if (methods.length === 0) {
         throw new Error('No account exists with this email. Please create an account first.');
@@ -132,7 +140,6 @@ export function useAuth() {
       console.log('Creating new account for:', email);
       setLoading(true);
       
-      // Validate email and password before attempting creation
       if (!email || !email.includes('@')) {
         throw new Error('Invalid email format');
       }
@@ -140,7 +147,6 @@ export function useAuth() {
         throw new Error('Password must be at least 6 characters');
       }
 
-      // Check if email already exists
       const methods = await fetchSignInMethodsForEmail(auth, email);
       if (methods.length > 0) {
         throw new Error('An account already exists with this email. Please sign in instead.');
@@ -157,6 +163,10 @@ export function useAuth() {
         displayName: defaultDisplayName
       });
       console.log('Display name set successfully');
+
+      // Store the user temporarily and show preferences dialog
+      setTempUser(userCredential.user);
+      setShowPreferences(true);
     } catch (error: any) {
       console.error('Detailed account creation error:', {
         code: error.code,
@@ -170,6 +180,24 @@ export function useAuth() {
       handleAuthError(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveUserPreferences = async (uid: string, preferences: NewsPreferences) => {
+    try {
+      await saveUserPreferencesToFirestore(uid, preferences);
+      console.log('Preferences saved successfully');
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      // Don't throw error, just log it and continue
+    } finally {
+      // Update local user state with preferences regardless of save status
+      setUser(prev => prev ? {
+        ...prev,
+        newsPreferences: preferences
+      } : null);
+      setShowPreferences(false);
+      setTempUser(null);
     }
   };
 
@@ -211,5 +239,15 @@ export function useAuth() {
     }
   };
 
-  return { user, signIn, createAccount, signOut, updateDisplayName, loading };
+  return { 
+    user, 
+    signIn, 
+    createAccount, 
+    signOut, 
+    updateDisplayName, 
+    loading,
+    showPreferences,
+    saveUserPreferences,
+    tempUser
+  };
 }
