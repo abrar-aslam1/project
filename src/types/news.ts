@@ -12,6 +12,11 @@ export interface User {
   newsPreferences?: NewsPreferences;
 }
 
+export interface TwitterMetrics {
+  likes: number;
+  retweets: number;
+}
+
 export interface NewsArticle {
   id: string;
   title: string;
@@ -23,6 +28,10 @@ export interface NewsArticle {
   subCategory: string;
   publishedAt: string;
   isFavorite: boolean;
+  type?: 'article' | 'twitter';
+  author?: string;
+  metrics?: TwitterMetrics;
+  content?: string;
 }
 
 export interface Category {

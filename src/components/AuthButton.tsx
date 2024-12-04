@@ -8,7 +8,6 @@ import { useAuthContext } from '../hooks/useAuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { NewsPreferencesDialog } from './NewsPreferencesDialog';
 import { NewsPreferences } from '../types/news';
-import { Separator } from './ui/separator';
 
 export function AuthButton() {
   const { 
