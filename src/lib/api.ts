@@ -31,7 +31,7 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
         description: item.description,
         source: item.source || 'Crypto News',
         link: item.url,
-        icon: getIconForCategory(categoryInfo.category),
+        icon: getIconForCategory(),
         category: categoryInfo.category,
         subCategory: categoryInfo.subCategory,
         publishedAt: new Date().toISOString(), // API doesn't provide date
@@ -98,7 +98,7 @@ function getCategoryInfo(title: string, description: string): { category: string
 }
 
 // Helper function to get icon based on category
-function getIconForCategory(category: string): React.ReactNode {
+function getIconForCategory(): React.ReactNode {
   // This should return the appropriate icon component
   // For now, returning null as icons are handled in the UI components
   return null;

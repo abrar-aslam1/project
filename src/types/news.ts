@@ -1,5 +1,3 @@
-import { User as FirebaseUser } from 'firebase/auth';
-
 export interface NewsPreferences {
   categories: string[];
   subCategories: string[];

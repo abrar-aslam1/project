@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { NewsCard } from '@/components/NewsCard';
+import { NewsCard } from '../../components/NewsCard';
 import { TrendingUp } from 'lucide-react';
 
 describe('NewsCard', () => {
@@ -13,6 +13,7 @@ describe('NewsCard', () => {
     category: 'bitcoin',
     subCategory: 'Price Analysis',
     publishedAt: '2024-03-20',
+    isFavorite: false
   };
 
   it('renders article information correctly', () => {
