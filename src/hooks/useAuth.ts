@@ -185,19 +185,24 @@ export function useAuth() {
 
   const saveUserPreferences = async (uid: string, preferences: NewsPreferences) => {
     try {
+      setLoading(true);
       await saveUserPreferencesToFirestore(uid, preferences);
       console.log('Preferences saved successfully');
-    } catch (error) {
-      console.error('Error saving preferences:', error);
-      // Don't throw error, just log it and continue
-    } finally {
-      // Update local user state with preferences regardless of save status
+      
+      // Update local user state with preferences
       setUser(prev => prev ? {
         ...prev,
         newsPreferences: preferences
       } : null);
+      
+      // Close dialog and clear temp user
       setShowPreferences(false);
       setTempUser(null);
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 

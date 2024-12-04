@@ -41,14 +41,13 @@ export const useNews = (
               cat => article.category.toLowerCase() === cat.toLowerCase()
             );
             
-            // If subcategories exist, check those too
-            if (categoryMatch && userPreferences.subCategories && userPreferences.subCategories.length > 0) {
-              return userPreferences.subCategories.some(
-                sub => article.subCategory.toLowerCase() === sub.toLowerCase()
-              );
-            }
+            // Check if article subcategory matches any user preferred subcategory
+            const subCategoryMatch = userPreferences.subCategories?.some(
+              sub => article.subCategory.toLowerCase() === sub.toLowerCase()
+            ) || false;
             
-            return categoryMatch;
+            // Show article if either category or subcategory matches
+            return categoryMatch || subCategoryMatch;
           });
         }
         // Then apply specific category/subcategory filters if selected
@@ -72,12 +71,13 @@ export const useNews = (
         
         console.log('Final filtered news count:', filteredNews.length);
         console.log('Final filtered news:', JSON.stringify(filteredNews, null, 2));
-        setNews(filteredNews.length > 0 ? filteredNews : sampleNews); // Fallback to sample news if no matches
+        // Don't fallback to sample news if no matches are found
+        setNews(filteredNews);
         setError(null);
       } catch (err) {
         console.error('Error in useNews hook:', err);
         setError(err instanceof Error ? err.message : 'Failed to load news');
-        setNews(sampleNews); // Fallback to sample news on error
+        setNews([]); // Set empty array instead of falling back to sample news
       } finally {
         setLoading(false);
       }

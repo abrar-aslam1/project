@@ -61,6 +61,14 @@ export function AuthButton() {
     setError(null);
     setIsSubmitting(true);
     try {
+      if (!email || !email.includes('@')) {
+        throw new Error('Invalid email format');
+      }
+      if (!password || password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+
+      console.log('Creating account with:', { email });
       await createAccount(email, password);
       setIsOpen(false);
       setEmail('');
@@ -74,7 +82,7 @@ export function AuthButton() {
       } else if (error.code === 'auth/weak-password') {
         setError('Password is too weak');
       } else {
-        setError('Failed to create account. Please try again');
+        setError(error.message || 'Failed to create account. Please try again');
       }
     } finally {
       setIsSubmitting(false);
@@ -284,7 +292,13 @@ export function AuthButton() {
 
       <NewsPreferencesDialog
         open={showPreferences}
-        onClose={() => {}}
+        onClose={() => {
+          // Only allow closing if tempUser doesn't exist (meaning preferences were saved)
+          if (!tempUser) {
+            // Reset any error state
+            setError(null);
+          }
+        }}
         onSave={handleSavePreferences}
       />
     </>
