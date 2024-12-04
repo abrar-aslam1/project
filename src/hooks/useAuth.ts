@@ -22,54 +22,60 @@ export function useAuth() {
   const [tempUser, setTempUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (!mounted) return;
+
       if (firebaseUser) {
         console.log('User authenticated:', firebaseUser.email);
         
-        // Fetch user preferences from Firestore
-        try {
-          const preferences = await getUserPreferencesFromFirestore(firebaseUser.uid);
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            photoURL: firebaseUser.photoURL,
-            favorites: [],
-            newsPreferences: preferences || undefined
-          });
-          
-          // Only show preferences dialog for new users without preferences
-          if (!preferences) {
+        // Set basic user info immediately to improve perceived loading
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          photoURL: firebaseUser.photoURL,
+          favorites: []
+        });
+        
+        // Fetch preferences in the background
+        getUserPreferencesFromFirestore(firebaseUser.uid)
+          .then(preferences => {
+            if (!mounted) return;
+            
+            if (preferences) {
+              setUser(prev => prev ? { ...prev, newsPreferences: preferences } : null);
+            } else {
+              setShowPreferences(true);
+              setTempUser(firebaseUser);
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching preferences:', error);
+            // Show preferences dialog if fetch failed
             setShowPreferences(true);
             setTempUser(firebaseUser);
-          }
-        } catch (error) {
-          console.error('Error fetching preferences:', error);
-          // Still set the user even if preferences fetch fails
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            photoURL: firebaseUser.photoURL,
-            favorites: []
+          })
+          .finally(() => {
+            if (mounted) setLoading(false);
           });
-          // Show preferences dialog if fetch failed
-          setShowPreferences(true);
-          setTempUser(firebaseUser);
-        }
       } else {
         console.log('No user authenticated');
         setUser(null);
         setShowPreferences(false);
         setTempUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     }, (error) => {
       console.error('Auth state change error:', error);
-      setLoading(false);
+      if (mounted) setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const handleAuthError = async (error: AuthError) => {
@@ -138,12 +144,8 @@ export function useAuth() {
       const result = await signInWithPopup(auth, provider);
       console.log('Google sign in successful:', result.user.email);
       
-      // Check if user needs to set preferences
-      const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-      if (!preferences) {
-        setShowPreferences(true);
-        setTempUser(result.user);
-      }
+      // Basic user info is set by the auth state listener
+      // Preferences check is handled by the auth state listener
     } catch (error: any) {
       handleAuthError(error);
     } finally {
