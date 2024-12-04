@@ -8,7 +8,9 @@ import {
   onAuthStateChanged,
   AuthError,
   AuthErrorCodes,
-  fetchSignInMethodsForEmail
+  fetchSignInMethodsForEmail,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, NewsPreferences } from '../types/news';
@@ -109,6 +111,15 @@ export function useAuth() {
       case 'auth/internal-error':
         errorMessage = 'An internal error occurred. Please try again.';
         break;
+      case 'auth/popup-closed-by-user':
+        errorMessage = 'Sign-in popup was closed before completion.';
+        break;
+      case 'auth/cancelled-popup-request':
+        errorMessage = 'The sign-in popup was cancelled.';
+        break;
+      case 'auth/popup-blocked':
+        errorMessage = 'Sign-in popup was blocked by the browser.';
+        break;
       default:
         errorMessage = `Authentication error: ${error.message}`;
     }
@@ -117,6 +128,27 @@ export function useAuth() {
     enhancedError.name = error.name;
     enhancedError.stack = error.stack;
     throw enhancedError;
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      console.log('Attempting Google sign in');
+      setLoading(true);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      console.log('Google sign in successful:', result.user.email);
+      
+      // Check if user needs to set preferences
+      const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+      if (!preferences) {
+        setShowPreferences(true);
+        setTempUser(result.user);
+      }
+    } catch (error: any) {
+      handleAuthError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signIn = async (email: string, password: string) => {
@@ -266,6 +298,7 @@ export function useAuth() {
     loading,
     showPreferences,
     saveUserPreferences,
-    tempUser
+    tempUser,
+    signInWithGoogle
   };
 }

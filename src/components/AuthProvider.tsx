@@ -14,6 +14,7 @@ interface AuthContextType {
   showPreferences: boolean;
   saveUserPreferences: (uid: string, preferences: NewsPreferences) => Promise<void>;
   tempUser: FirebaseUser | null;
+  signInWithGoogle: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -26,6 +27,7 @@ export const AuthContext = createContext<AuthContextType>({
   showPreferences: false,
   saveUserPreferences: async () => {},
   tempUser: null,
+  signInWithGoogle: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
