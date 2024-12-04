@@ -1,4 +1,5 @@
 import { Category } from '../types/news';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 interface CategoryNavProps {
   categories: Category[];
@@ -15,20 +16,30 @@ export function CategoryNav({
   onCategoryChange,
   onSubCategoryChange,
 }: CategoryNavProps) {
-  const activeMainCategory = categories.find(cat => cat.id === activeCategory);
-  const hasSubCategories = activeMainCategory?.subCategories && activeMainCategory.subCategories.length > 0;
+  const { user } = useAuthContext();
+
+  // Filter categories based on user preferences if they exist
+  const filteredCategories = user?.newsPreferences
+    ? categories.filter(category => 
+        category.id === 'all' || user.newsPreferences?.categories.includes(category.id)
+      )
+    : categories;
 
   return (
-    <nav className="space-y-4 mb-8">
-      <div className="flex flex-wrap gap-4">
-        {categories.map((category) => (
+    <div className="space-y-4">
+      {/* Main Categories */}
+      <div className="flex flex-wrap gap-2">
+        {filteredCategories.map((category) => (
           <button
             key={category.id}
-            onClick={() => onCategoryChange(category.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+            onClick={() => {
+              onCategoryChange(category.id);
+              onSubCategoryChange('all');
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all ${
               activeCategory === category.id
                 ? 'bg-purple-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
             {category.icon}
@@ -37,33 +48,39 @@ export function CategoryNav({
         ))}
       </div>
 
-      {hasSubCategories && (
-        <div className="flex flex-wrap gap-3">
+      {/* Subcategories */}
+      {activeCategory !== 'all' && (
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => onSubCategoryChange('all')}
-            className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+            className={`px-4 py-2 rounded-full text-sm transition-all ${
               activeSubCategory === 'all'
                 ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
             All
           </button>
-          {activeMainCategory?.subCategories.map((subCategory) => (
-            <button
-              key={subCategory}
-              onClick={() => onSubCategoryChange(subCategory)}
-              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                activeSubCategory === subCategory
-                  ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
-            >
-              {subCategory}
-            </button>
-          ))}
+          {categories
+            .find((c) => c.id === activeCategory)
+            ?.subCategories.filter(sub => 
+              !user?.newsPreferences || user.newsPreferences.subCategories.includes(sub)
+            )
+            .map((subCategory) => (
+              <button
+                key={subCategory}
+                onClick={() => onSubCategoryChange(subCategory)}
+                className={`px-4 py-2 rounded-full text-sm transition-all ${
+                  activeSubCategory === subCategory
+                    ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                {subCategory}
+              </button>
+            ))}
         </div>
       )}
-    </nav>
+    </div>
   );
 }

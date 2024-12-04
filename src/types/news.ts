@@ -1,24 +1,4 @@
-import { ReactElement } from 'react';
-
-export interface NewsArticle {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  link: string;
-  icon: ReactElement;
-  category: string;
-  subCategory: string;
-  publishedAt: string;
-  isFavorite?: boolean;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  icon: ReactElement;
-  subCategories: string[];
-}
+import { User as FirebaseUser } from 'firebase/auth';
 
 export interface NewsPreferences {
   categories: string[];
@@ -32,4 +12,24 @@ export interface User {
   photoURL: string | null;
   favorites?: string[];
   newsPreferences?: NewsPreferences;
+}
+
+export interface NewsArticle {
+  id: string;
+  title: string;
+  description: string;
+  source: string;
+  link: string;
+  icon: React.ReactNode;
+  category: string;
+  subCategory: string;
+  publishedAt: string;
+  isFavorite: boolean;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  subCategories: string[];
 }

@@ -17,7 +17,7 @@ export function NewsPreferencesDialog({ open, onClose, onSave }: NewsPreferences
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleToggle = useCallback((e: MouseEvent, item: string, isSubCategory: boolean = false) => {
+  const handleToggle = useCallback((e: MouseEvent<HTMLButtonElement>, item: string, isSubCategory: boolean = false) => {
     e.preventDefault();
     e.stopPropagation();
     setError(null); // Clear any previous error
@@ -32,7 +32,7 @@ export function NewsPreferencesDialog({ open, onClose, onSave }: NewsPreferences
     }
   }, []);
 
-  const handleSave = useCallback(async (e: MouseEvent) => {
+  const handleSave = useCallback(async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (selectedCategories.length === 0) {
@@ -65,7 +65,11 @@ export function NewsPreferencesDialog({ open, onClose, onSave }: NewsPreferences
   }, [isSaving, selectedCategories.length, onClose]);
 
   return (
-    <Dialog open={open} onOpenChange={handleClose} modal>
+    <Dialog 
+      open={open} 
+      onOpenChange={handleClose} 
+      modal={true}
+    >
       <DialogContent 
         className="max-w-md bg-gray-900 border-gray-800" 
         onPointerDownOutside={(e) => {
@@ -88,7 +92,12 @@ export function NewsPreferencesDialog({ open, onClose, onSave }: NewsPreferences
         }}
         onClick={(e) => {
           // Prevent dialog from closing when clicking inside
+          e.preventDefault();
           e.stopPropagation();
+        }}
+        onOpenAutoFocus={(e) => {
+          // Prevent focus from causing dialog to close
+          e.preventDefault();
         }}
       >
         <DialogTitle asChild>
@@ -97,6 +106,7 @@ export function NewsPreferencesDialog({ open, onClose, onSave }: NewsPreferences
               variant="ghost" 
               size="icon"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 // Only allow closing if not saving and no categories selected
                 if (!isSaving && selectedCategories.length === 0) {
@@ -112,17 +122,17 @@ export function NewsPreferencesDialog({ open, onClose, onSave }: NewsPreferences
           </div>
         </DialogTitle>
         
-        <p className="text-sm text-gray-400 mb-6">
-          Pick things you'd like to see in your news feed.
-        </p>
+        <div className="space-y-8" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+          <p className="text-sm text-gray-400 mb-6">
+            Pick things you'd like to see in your news feed.
+          </p>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+              {error}
+            </div>
+          )}
 
-        <div className="space-y-8">
           {/* Main Categories */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">

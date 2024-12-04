@@ -293,11 +293,8 @@ export function AuthButton() {
       <NewsPreferencesDialog
         open={showPreferences}
         onClose={() => {
-          // Only allow closing if tempUser doesn't exist (meaning preferences were saved)
-          if (!tempUser) {
-            // Reset any error state
-            setError(null);
-          }
+          // Do nothing here since the dialog state is managed by useAuth
+          // The dialog will close automatically when preferences are saved
         }}
         onSave={handleSavePreferences}
       />

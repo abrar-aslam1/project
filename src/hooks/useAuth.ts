@@ -35,6 +35,12 @@ export function useAuth() {
             favorites: [],
             newsPreferences: preferences || undefined
           });
+          
+          // Only show preferences dialog for new users without preferences
+          if (!preferences) {
+            setShowPreferences(true);
+            setTempUser(firebaseUser);
+          }
         } catch (error) {
           console.error('Error fetching preferences:', error);
           // Still set the user even if preferences fetch fails
@@ -45,10 +51,15 @@ export function useAuth() {
             photoURL: firebaseUser.photoURL,
             favorites: []
           });
+          // Show preferences dialog if fetch failed
+          setShowPreferences(true);
+          setTempUser(firebaseUser);
         }
       } else {
         console.log('No user authenticated');
         setUser(null);
+        setShowPreferences(false);
+        setTempUser(null);
       }
       setLoading(false);
     }, (error) => {
@@ -195,9 +206,11 @@ export function useAuth() {
         newsPreferences: preferences
       } : null);
       
-      // Close dialog and clear temp user
-      setShowPreferences(false);
-      setTempUser(null);
+      // Only close dialog after successful save
+      if (tempUser) {
+        setShowPreferences(false);
+        setTempUser(null);
+      }
     } catch (error) {
       console.error('Error saving preferences:', error);
       throw error;
