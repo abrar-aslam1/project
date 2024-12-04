@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { AuthButton } from './AuthButton';
 import { ThemeToggle } from './ThemeToggle';
 import { Button } from './ui/button';
-import { Settings } from 'lucide-react';
+import { Settings, Menu, X } from 'lucide-react';
 import { useAuthContext } from '../hooks/useAuthContext';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 interface HeaderProps {
   isDarkMode: boolean;
@@ -12,6 +14,7 @@ interface HeaderProps {
 
 export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: HeaderProps) {
   const { user } = useAuthContext();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full glass-effect dark:bg-black/50">
@@ -24,7 +27,8 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
               </h1>
               <div className="text-sm text-purple-400 mt-0.5 text-left">Crypto News & Tools</div>
             </div>
-            <nav className="hidden sm:flex items-center space-x-6">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
               <a href="#news" className="text-sm font-medium hover:text-purple-400 transition-colors">News</a>
               <a href="#tools" className="text-sm font-medium hover:text-purple-400 transition-colors">Tools</a>
               <a href="#merch" className="text-sm font-medium hover:text-purple-400 transition-colors">Merch</a>
@@ -43,7 +47,56 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
                 <Settings className="h-5 w-5" />
               </Button>
             )}
-            <AuthButton />
+            <div className="hidden md:block">
+              <AuthButton />
+            </div>
+            {/* Mobile Menu Button */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  {isMobileMenuOpen ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Menu className="h-5 w-5" />
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <a 
+                    href="#news" 
+                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    News
+                  </a>
+                  <a 
+                    href="#tools" 
+                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Tools
+                  </a>
+                  <a 
+                    href="#merch" 
+                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Merch
+                  </a>
+                  <a 
+                    href="#exchange" 
+                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Exchange Finder
+                  </a>
+                  <div className="mt-4 p-2">
+                    <AuthButton />
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

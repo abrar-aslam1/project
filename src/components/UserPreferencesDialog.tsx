@@ -107,7 +107,7 @@ export function UserPreferencesDialog({
       onOpenChange={onClose}
       modal={true}
     >
-      <DialogContent className="max-w-2xl bg-gray-900 border-gray-800">
+      <DialogContent className="w-[95vw] max-w-2xl bg-gray-900 border-gray-800 p-4 sm:p-6">
         <DialogTitle asChild>
           <div className="flex items-center gap-2 mb-4">
             <Button 
@@ -128,7 +128,7 @@ export function UserPreferencesDialog({
             <TabsTrigger value="twitter">Twitter Accounts</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="news" className="space-y-8">
+          <TabsContent value="news" className="space-y-6 sm:space-y-8">
             <p className="text-sm text-gray-400">
               Pick categories you'd like to see in your news feed.
             </p>
@@ -146,7 +146,7 @@ export function UserPreferencesDialog({
                       key={category.id}
                       type="button"
                       onClick={(e) => handleToggle(e, category.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all ${
+                      className={`flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm transition-all ${
                         selectedCategories.includes(category.id)
                           ? 'bg-purple-500 text-white'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -174,7 +174,7 @@ export function UserPreferencesDialog({
                         key={sub}
                         type="button"
                         onClick={(e) => handleToggle(e, sub, true)}
-                        className={`px-4 py-2 rounded-full text-sm transition-all ${
+                        className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm transition-all ${
                           selectedSubCategories.includes(sub)
                             ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
                             : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -194,15 +194,15 @@ export function UserPreferencesDialog({
               Add Twitter accounts you want to follow for news and updates.
             </p>
 
-            <form onSubmit={handleAddTwitterAccount} className="flex gap-2">
+            <form onSubmit={handleAddTwitterAccount} className="flex flex-col sm:flex-row gap-2">
               <Input
                 type="text"
                 placeholder="@username"
                 value={newTwitterAccount}
                 onChange={(e) => setNewTwitterAccount(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-gray-800 border-gray-700 text-white flex-1"
               />
-              <Button type="submit" variant="secondary">
+              <Button type="submit" variant="secondary" className="w-full sm:w-auto">
                 Add Account
               </Button>
             </form>
@@ -232,12 +232,12 @@ export function UserPreferencesDialog({
         </Tabs>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
             {error}
           </div>
         )}
 
-        <div className="mt-8">
+        <div className="mt-6">
           <Button
             onClick={handleSave}
             disabled={selectedCategories.length === 0 || isSaving}
