@@ -3,15 +3,8 @@ export interface NewsPreferences {
   subCategories: string[];
 }
 
-export interface TwitterAccount {
-  username: string;
-  displayName?: string;
-  addedAt: string;
-}
-
 export interface UserPreferences {
   newsPreferences: NewsPreferences;
-  twitterAccounts: TwitterAccount[];
   darkMode?: boolean;
 }
 
@@ -22,11 +15,6 @@ export interface User {
   photoURL: string | null;
   favorites?: string[];
   preferences?: UserPreferences;
-}
-
-export interface TwitterMetrics {
-  likes: number;
-  retweets: number;
 }
 
 export interface NewsArticle {
@@ -40,9 +28,8 @@ export interface NewsArticle {
   subCategory: string;
   publishedAt: string;
   isFavorite: boolean;
-  type?: 'article' | 'twitter';
+  type?: 'article';
   author?: string;
-  metrics?: TwitterMetrics;
   content?: string;
 }
 

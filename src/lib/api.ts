@@ -4,48 +4,6 @@ import { sampleNews } from '../data/sampleNews';
 const API_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const API_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
 
-export async function fetchTwitterFeed(): Promise<NewsArticle[]> {
-  try {
-    console.log('Fetching Twitter feed...');
-    const response = await fetch('/api/getTwitterFeed');
-    if (!response.ok) {
-      throw new Error(`Twitter API request failed with status ${response.status}`);
-    }
-    const tweets = await response.json();
-    
-    // Transform tweets to include the new Twitter category
-    const transformedTweets = tweets.map((tweet: NewsArticle) => ({
-      ...tweet,
-      category: 'twitter',
-      subCategory: determineTwitterSubCategory(tweet.description),
-      type: 'twitter'
-    }));
-    
-    console.log('Fetched tweets:', transformedTweets);
-    return transformedTweets;
-  } catch (error) {
-    console.error('Error fetching Twitter feed:', error);
-    return [];
-  }
-}
-
-// Helper function to determine Twitter subcategory based on content
-function determineTwitterSubCategory(content: string): string {
-  const lowerContent = content.toLowerCase();
-  
-  if (lowerContent.includes('price') || lowerContent.includes('chart') || 
-      lowerContent.includes('buy') || lowerContent.includes('sell')) {
-    return 'Trading';
-  }
-  
-  if (lowerContent.includes('project') || lowerContent.includes('launch') || 
-      lowerContent.includes('update') || lowerContent.includes('announcement')) {
-    return 'Projects';
-  }
-  
-  return 'Influencers'; // Default subcategory
-}
-
 export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   try {
     console.log('Fetching crypto news...');
@@ -92,25 +50,13 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   }
 }
 
-// Fetch both crypto news and Twitter feed
+// Fetch all news (now just crypto news since Twitter is removed)
 export async function fetchAllNews(): Promise<NewsArticle[]> {
   try {
     console.log('Fetching all news...');
-    const [news, tweets] = await Promise.all([
-      fetchCryptoNews(),
-      fetchTwitterFeed()
-    ]);
-
+    const news = await fetchCryptoNews();
     console.log('News count:', news.length);
-    console.log('Tweets count:', tweets.length);
-
-    // Combine and sort by date
-    const allNews = [...news, ...tweets].sort(
-      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    );
-
-    console.log('Total combined news count:', allNews.length);
-    return allNews;
+    return news;
   } catch (error) {
     console.error('Error fetching all news:', error);
     return sampleNews;

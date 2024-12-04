@@ -11,7 +11,7 @@ export function useNews(category: string, subCategory: string, preferences?: New
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        console.log('Attempting to fetch news and tweets...');
+        console.log('Fetching crypto news...');
         const articles = await fetchAllNews();
         
         // Filter news based on user preferences if they exist
@@ -32,17 +32,6 @@ export function useNews(category: string, subCategory: string, preferences?: New
           // If no preferences, filter based on selected category/subcategory
           filteredNews = articles.filter(article => {
             if (category === 'all') return true;
-
-            // Handle Twitter category
-            if (category === 'twitter') {
-              return article.type === 'twitter';
-            }
-
-            // For other categories, exclude Twitter content
-            if (article.type === 'twitter') {
-              return false;
-            }
-
             if (subCategory === 'all') return article.category === category;
             return article.category === category && article.subCategory === subCategory;
           });
@@ -52,7 +41,7 @@ export function useNews(category: string, subCategory: string, preferences?: New
         setNews(filteredNews);
         setError(null);
       } catch (err) {
-        console.error('Error fetching news and tweets:', err);
+        console.error('Error fetching news:', err);
         console.warn('Failed to fetch from API, using sample data');
         
         // Use sample data as fallback
@@ -68,17 +57,6 @@ export function useNews(category: string, subCategory: string, preferences?: New
         } else {
           filteredNews = sampleNews.filter(article => {
             if (category === 'all') return true;
-            
-            // Handle Twitter category in sample data
-            if (category === 'twitter') {
-              return article.type === 'twitter';
-            }
-
-            // For other categories, exclude Twitter content
-            if (article.type === 'twitter') {
-              return false;
-            }
-
             if (subCategory === 'all') return article.category === category;
             return article.category === category && article.subCategory === subCategory;
           });

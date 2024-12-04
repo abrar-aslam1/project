@@ -33,7 +33,6 @@ function AppContent() {
       categories: [],
       subCategories: []
     },
-    twitterAccounts: [],
     darkMode: isDarkMode
   };
 

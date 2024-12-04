@@ -1,5 +1,5 @@
 import { Category } from '../types/news';
-import { Bitcoin, Coins, Wallet, Frame, Twitter } from 'lucide-react';
+import { Bitcoin, Coins, Wallet, Frame } from 'lucide-react';
 
 export const categories: Category[] = [
   {
@@ -7,12 +7,6 @@ export const categories: Category[] = [
     name: 'All News',
     icon: <Bitcoin className="h-5 w-5" />,
     subCategories: []
-  },
-  {
-    id: 'twitter',
-    name: 'Twitter',
-    icon: <Twitter className="h-5 w-5" />,
-    subCategories: ['Influencers', 'Projects', 'Trading']
   },
   {
     id: 'bitcoin',

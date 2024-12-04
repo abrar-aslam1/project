@@ -1,7 +1,7 @@
 import { NewsArticle } from '../types/news';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { useAuthContext } from '../hooks/useAuthContext';
-import { ExternalLink, Heart, Repeat2, Twitter } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -16,10 +16,7 @@ export function NewsCard({ article }: NewsCardProps) {
     icon, 
     category, 
     subCategory, 
-    link, 
-    type,
-    metrics,
-    author 
+    link
   } = article;
 
   // Only show articles that match user preferences if they exist
@@ -49,10 +46,10 @@ export function NewsCard({ article }: NewsCardProps) {
       <CardHeader className="space-y-3 pb-4 px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="text-purple-600 dark:text-purple-400 flex-shrink-0">
-            {type === 'twitter' ? <Twitter className="h-5 w-5" /> : icon}
+            {icon}
           </div>
           <span className="text-sm font-medium text-gray-600 dark:text-gray-300 truncate">
-            {type === 'twitter' ? `@${author}` : source}
+            {source}
           </span>
         </div>
         <CardTitle className="text-base sm:text-xl font-bold leading-tight hover:text-purple-600 dark:hover:text-purple-400 transition-colors line-clamp-2">
@@ -73,18 +70,6 @@ export function NewsCard({ article }: NewsCardProps) {
                 {subCategory}
               </span>
             </div>
-            {type === 'twitter' && metrics && (
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-                  {metrics.likes}
-                </span>
-                <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  <Repeat2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                  {metrics.retweets}
-                </span>
-              </div>
-            )}
           </div>
           <a 
             href={link}
@@ -92,7 +77,7 @@ export function NewsCard({ article }: NewsCardProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors hover:underline"
           >
-            {type === 'twitter' ? 'View Tweet' : 'Read more'}
+            Read more
             <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
           </a>
         </div>
