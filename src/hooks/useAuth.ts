@@ -10,10 +10,17 @@ import {
   AuthErrorCodes,
   fetchSignInMethodsForEmail,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
+
+// Helper function to detect mobile devices
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -23,6 +30,26 @@ export function useAuth() {
 
   useEffect(() => {
     let mounted = true;
+
+    // Handle redirect result when the page loads
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          console.log('Google sign in via redirect successful:', result.user.email);
+          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+          if (!preferences) {
+            console.log('No preferences found for Google user, showing dialog');
+            setShowPreferences(true);
+            setTempUser(result.user);
+          }
+        }
+      } catch (error) {
+        console.error('Error handling redirect result:', error);
+      }
+    };
+
+    handleRedirectResult();
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (!mounted) return;
@@ -155,15 +182,23 @@ export function useAuth() {
       console.log('Attempting Google sign in');
       setLoading(true);
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      console.log('Google sign in successful:', result.user.email);
       
-      // Check for preferences immediately after Google sign-in
-      const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-      if (!preferences) {
-        console.log('No preferences found for Google user, showing dialog');
-        setShowPreferences(true);
-        setTempUser(result.user);
+      if (isMobileDevice()) {
+        console.log('Using redirect for mobile device');
+        await signInWithRedirect(auth, provider);
+        // The redirect will happen here, and the result will be handled in useEffect
+      } else {
+        console.log('Using popup for desktop device');
+        const result = await signInWithPopup(auth, provider);
+        console.log('Google sign in successful:', result.user.email);
+        
+        // Check for preferences immediately after Google sign-in
+        const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+        if (!preferences) {
+          console.log('No preferences found for Google user, showing dialog');
+          setShowPreferences(true);
+          setTempUser(result.user);
+        }
       }
     } catch (error: any) {
       handleAuthError(error);
