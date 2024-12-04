@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { User, NewsPreferences } from '../types/news';
+import { User, UserPreferences } from '../types/news';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
@@ -12,7 +12,7 @@ interface AuthContextType {
   updateDisplayName: (newDisplayName: string) => Promise<void>;
   loading: boolean;
   showPreferences: boolean;
-  saveUserPreferences: (uid: string, preferences: NewsPreferences) => Promise<void>;
+  saveUserPreferences: (uid: string, preferences: UserPreferences) => Promise<void>;
   tempUser: FirebaseUser | null;
   signInWithGoogle: () => Promise<void>;
 }

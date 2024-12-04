@@ -9,6 +9,9 @@ import { useNews } from './hooks/useNews';
 import { useDarkMode } from './hooks/useDarkMode';
 import { AuthProvider } from './components/AuthProvider';
 import { useAuthContext } from './hooks/useAuthContext';
+import { useAuth } from './hooks/useAuth';
+import { UserPreferencesDialog } from './components/UserPreferencesDialog';
+import { UserPreferences } from './types/news';
 import './App.css';
 
 function AppContent() {
@@ -16,18 +19,30 @@ function AppContent() {
   const [activeSubCategory, setActiveSubCategory] = useState('all');
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { user } = useAuthContext();
-  const { news, loading, error } = useNews(activeCategory, activeSubCategory, user?.newsPreferences);
+  const { saveUserPreferences } = useAuth();
+  const { news, loading, error } = useNews(activeCategory, activeSubCategory, user?.preferences?.newsPreferences);
+  const [showPreferences, setShowPreferences] = useState(false);
 
   // Force dark mode class on mount
   useState(() => {
     document.documentElement.classList.add('dark');
   });
 
+  const defaultPreferences: UserPreferences = {
+    newsPreferences: {
+      categories: [],
+      subCategories: []
+    },
+    twitterAccounts: [],
+    darkMode: isDarkMode
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Header 
         isDarkMode={isDarkMode} 
         onToggleDarkMode={toggleDarkMode}
+        onOpenPreferences={() => setShowPreferences(true)}
       />
       
       <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -64,6 +79,24 @@ function AppContent() {
       </main>
 
       <Footer />
+
+      {user && (
+        <UserPreferencesDialog
+          open={showPreferences}
+          onClose={() => setShowPreferences(false)}
+          onSave={async (preferences) => {
+            if (user) {
+              const updatedPreferences: UserPreferences = {
+                ...preferences,
+                darkMode: isDarkMode
+              };
+              await saveUserPreferences(user.uid, updatedPreferences);
+              setShowPreferences(false);
+            }
+          }}
+          initialPreferences={user.preferences || defaultPreferences}
+        />
+      )}
     </div>
   );
 }

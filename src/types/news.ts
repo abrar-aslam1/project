@@ -3,13 +3,25 @@ export interface NewsPreferences {
   subCategories: string[];
 }
 
+export interface TwitterAccount {
+  username: string;
+  displayName?: string;
+  addedAt: string;
+}
+
+export interface UserPreferences {
+  newsPreferences: NewsPreferences;
+  twitterAccounts: TwitterAccount[];
+  darkMode?: boolean;
+}
+
 export interface User {
   uid: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
   favorites?: string[];
-  newsPreferences?: NewsPreferences;
+  preferences?: UserPreferences;
 }
 
 export interface TwitterMetrics {

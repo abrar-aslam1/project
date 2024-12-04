@@ -9,6 +9,7 @@ import {
   AuthError
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { UserPreferences } from '../types/news';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -118,9 +119,9 @@ try {
 }
 
 // Helper functions for Firestore operations
-export const saveUserPreferencesToFirestore = async (uid: string, preferences: any) => {
+export const saveUserPreferencesToFirestore = async (uid: string, preferences: UserPreferences) => {
   try {
-    await setDoc(doc(db, 'users', uid), { newsPreferences: preferences }, { merge: true });
+    await setDoc(doc(db, 'users', uid), { preferences }, { merge: true });
     console.log('User preferences saved successfully');
   } catch (error) {
     console.error('Error saving user preferences:', error);
@@ -132,7 +133,7 @@ export const getUserPreferencesFromFirestore = async (uid: string) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
-      return userDoc.data().newsPreferences;
+      return userDoc.data().preferences;
     }
     return null;
   } catch (error) {

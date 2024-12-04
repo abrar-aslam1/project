@@ -19,9 +19,9 @@ export function CategoryNav({
   const { user } = useAuthContext();
 
   // Filter categories based on user preferences if they exist
-  const filteredCategories = user?.newsPreferences
+  const filteredCategories = user?.preferences?.newsPreferences
     ? categories.filter(category => 
-        category.id === 'all' || user.newsPreferences?.categories.includes(category.id)
+        category.id === 'all' || user.preferences?.newsPreferences.categories.includes(category.id)
       )
     : categories;
 
@@ -64,7 +64,7 @@ export function CategoryNav({
           {categories
             .find((c) => c.id === activeCategory)
             ?.subCategories.filter(sub => 
-              !user?.newsPreferences || user.newsPreferences.subCategories.includes(sub)
+              !user?.preferences?.newsPreferences || user.preferences.newsPreferences.subCategories.includes(sub)
             )
             .map((subCategory) => (
               <button

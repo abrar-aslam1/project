@@ -1,12 +1,18 @@
 import { AuthButton } from './AuthButton';
 import { ThemeToggle } from './ThemeToggle';
+import { Button } from './ui/button';
+import { Settings } from 'lucide-react';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 interface HeaderProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
+  onOpenPreferences: () => void;
 }
 
-export function Header({ isDarkMode, onToggleDarkMode }: HeaderProps) {
+export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: HeaderProps) {
+  const { user } = useAuthContext();
+
   return (
     <header className="sticky top-0 z-50 w-full glass-effect dark:bg-black/50">
       <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
@@ -25,8 +31,18 @@ export function Header({ isDarkMode, onToggleDarkMode }: HeaderProps) {
               <a href="#exchange" className="text-sm font-medium hover:text-purple-400 transition-colors">Exchange Finder</a>
             </nav>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <ThemeToggle isDarkMode={isDarkMode} onToggleDarkMode={onToggleDarkMode} />
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onOpenPreferences}
+                className="text-gray-600 dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400"
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+            )}
             <AuthButton />
           </div>
         </div>

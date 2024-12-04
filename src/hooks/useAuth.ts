@@ -13,7 +13,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
-import { User, NewsPreferences } from '../types/news';
+import { User, UserPreferences } from '../types/news';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -30,43 +30,57 @@ export function useAuth() {
       if (firebaseUser) {
         console.log('User authenticated:', firebaseUser.email);
         
-        // Set basic user info immediately to improve perceived loading
-        setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-          photoURL: firebaseUser.photoURL,
-          favorites: []
-        });
-        
-        // Fetch preferences in the background
-        getUserPreferencesFromFirestore(firebaseUser.uid)
-          .then(preferences => {
-            if (!mounted) return;
-            
-            if (preferences) {
-              setUser(prev => prev ? { ...prev, newsPreferences: preferences } : null);
-            } else {
-              setShowPreferences(true);
-              setTempUser(firebaseUser);
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching preferences:', error);
-            // Show preferences dialog if fetch failed
+        try {
+          // Check for preferences first
+          const preferences = await getUserPreferencesFromFirestore(firebaseUser.uid);
+          
+          if (!preferences) {
+            // If no preferences, show dialog and store temp user
+            console.log('No preferences found, showing preferences dialog');
             setShowPreferences(true);
             setTempUser(firebaseUser);
-          })
-          .finally(() => {
-            if (mounted) setLoading(false);
+            // Set basic user info but don't complete the sign-in flow
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+              photoURL: firebaseUser.photoURL,
+              favorites: []
+            });
+          } else {
+            // If preferences exist, complete the sign-in flow
+            console.log('Preferences found, completing sign-in');
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+              photoURL: firebaseUser.photoURL,
+              favorites: [],
+              preferences
+            });
+            setShowPreferences(false);
+            setTempUser(null);
+          }
+        } catch (error) {
+          console.error('Error checking preferences:', error);
+          // On error, show preferences dialog
+          setShowPreferences(true);
+          setTempUser(firebaseUser);
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            photoURL: firebaseUser.photoURL,
+            favorites: []
           });
+        }
       } else {
         console.log('No user authenticated');
         setUser(null);
         setShowPreferences(false);
         setTempUser(null);
-        setLoading(false);
       }
+      setLoading(false);
     }, (error) => {
       console.error('Auth state change error:', error);
       if (mounted) setLoading(false);
@@ -144,8 +158,13 @@ export function useAuth() {
       const result = await signInWithPopup(auth, provider);
       console.log('Google sign in successful:', result.user.email);
       
-      // Basic user info is set by the auth state listener
-      // Preferences check is handled by the auth state listener
+      // Check for preferences immediately after Google sign-in
+      const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+      if (!preferences) {
+        console.log('No preferences found for Google user, showing dialog');
+        setShowPreferences(true);
+        setTempUser(result.user);
+      }
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -228,23 +247,20 @@ export function useAuth() {
     }
   };
 
-  const saveUserPreferences = async (uid: string, preferences: NewsPreferences) => {
+  const saveUserPreferences = async (uid: string, preferences: UserPreferences) => {
     try {
       setLoading(true);
       await saveUserPreferencesToFirestore(uid, preferences);
       console.log('Preferences saved successfully');
       
-      // Update local user state with preferences
+      // Update local user state with preferences and complete the sign-in flow
       setUser(prev => prev ? {
         ...prev,
-        newsPreferences: preferences
+        preferences
       } : null);
       
-      // Only close dialog after successful save
-      if (tempUser) {
-        setShowPreferences(false);
-        setTempUser(null);
-      }
+      setShowPreferences(false);
+      setTempUser(null);
     } catch (error) {
       console.error('Error saving preferences:', error);
       throw error;

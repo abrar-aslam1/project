@@ -23,8 +23,8 @@ export function NewsCard({ article }: NewsCardProps) {
   } = article;
 
   // Only show articles that match user preferences if they exist
-  if (user?.newsPreferences) {
-    const { categories, subCategories } = user.newsPreferences;
+  if (user?.preferences?.newsPreferences) {
+    const { categories, subCategories } = user.preferences.newsPreferences;
     const categoryMatch = categories.includes(category);
     const subCategoryMatch = subCategories.includes(subCategory);
     

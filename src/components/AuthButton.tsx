@@ -6,8 +6,8 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useAuthContext } from '../hooks/useAuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { NewsPreferencesDialog } from './NewsPreferencesDialog';
-import { NewsPreferences } from '../types/news';
+import { UserPreferencesDialog } from './UserPreferencesDialog';
+import { UserPreferences } from '../types/news';
 
 export function AuthButton() {
   const { 
@@ -89,7 +89,7 @@ export function AuthButton() {
     }
   };
 
-  const handleSavePreferences = async (preferences: NewsPreferences) => {
+  const handleSavePreferences = async (preferences: UserPreferences) => {
     if (tempUser) {
       try {
         await saveUserPreferences(tempUser.uid, preferences);
@@ -375,7 +375,7 @@ export function AuthButton() {
         </DialogContent>
       </Dialog>
 
-      <NewsPreferencesDialog
+      <UserPreferencesDialog
         open={showPreferences}
         onClose={() => {
           // Do nothing here since the dialog state is managed by useAuth
