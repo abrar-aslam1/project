@@ -12,7 +12,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
-  getRedirectResult
+  getRedirectResult,
+  browserPopupRedirectResolver
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
@@ -34,7 +35,8 @@ export function useAuth() {
     // Handle redirect result when the page loads
     const handleRedirectResult = async () => {
       try {
-        const result = await getRedirectResult(auth);
+        console.log('Checking for redirect result...');
+        const result = await getRedirectResult(auth, browserPopupRedirectResolver);
         if (result?.user) {
           console.log('Google sign in via redirect successful:', result.user.email);
           const preferences = await getUserPreferencesFromFirestore(result.user.uid);
@@ -43,12 +45,20 @@ export function useAuth() {
             setShowPreferences(true);
             setTempUser(result.user);
           }
+        } else {
+          console.log('No redirect result found');
         }
-      } catch (error) {
-        console.error('Error handling redirect result:', error);
+      } catch (error: any) {
+        console.error('Error handling redirect result:', {
+          code: error.code,
+          message: error.message,
+          stack: error.stack
+        });
+        // Don't throw the error here to prevent blocking the auth flow
       }
     };
 
+    // Call handleRedirectResult immediately
     handleRedirectResult();
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -182,17 +192,33 @@ export function useAuth() {
       console.log('Attempting Google sign in');
       setLoading(true);
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
       
       if (isMobileDevice()) {
         console.log('Using redirect for mobile device');
-        await signInWithRedirect(auth, provider);
-        // The redirect will happen here, and the result will be handled in useEffect
+        try {
+          await signInWithRedirect(auth, provider, browserPopupRedirectResolver);
+          console.log('Redirect initiated successfully');
+        } catch (redirectError: any) {
+          console.error('Redirect failed, falling back to popup:', redirectError);
+          // If redirect fails, fall back to popup
+          const result = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
+          console.log('Fallback popup sign in successful:', result.user.email);
+          
+          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+          if (!preferences) {
+            console.log('No preferences found for Google user, showing dialog');
+            setShowPreferences(true);
+            setTempUser(result.user);
+          }
+        }
       } else {
         console.log('Using popup for desktop device');
-        const result = await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
         console.log('Google sign in successful:', result.user.email);
         
-        // Check for preferences immediately after Google sign-in
         const preferences = await getUserPreferencesFromFirestore(result.user.uid);
         if (!preferences) {
           console.log('No preferences found for Google user, showing dialog');

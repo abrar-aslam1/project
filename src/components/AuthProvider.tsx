@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { User, UserPreferences } from '../types/news';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser, getRedirectResult, browserPopupRedirectResolver } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -32,23 +32,60 @@ export const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isFirebaseInitialized, setIsFirebaseInitialized] = useState(false);
+  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
   const authHook = useAuth();
 
   useEffect(() => {
-    // Use onAuthStateChanged as a way to ensure Firebase Auth is initialized
-    const unsubscribe = onAuthStateChanged(auth, () => {
-      console.log('Firebase Auth is fully initialized');
-      setIsFirebaseInitialized(true);
-    }, (error) => {
-      console.error('Error initializing Firebase Auth:', error);
-      setIsFirebaseInitialized(true); // Set to true even on error to prevent infinite loading
-    });
+    let mounted = true;
 
-    return () => unsubscribe();
+    // Handle redirect result and set up auth state listener
+    const initialize = async () => {
+      try {
+        // Handle any pending redirect result first
+        console.log('Checking for redirect result...');
+        const result = await getRedirectResult(auth, browserPopupRedirectResolver);
+        if (result) {
+          console.log('Redirect result processed:', result.user.email);
+        } else {
+          console.log('No redirect result found');
+        }
+      } catch (error) {
+        console.error('Error handling redirect result:', error);
+      } finally {
+        if (mounted) {
+          setIsHandlingRedirect(false);
+        }
+      }
+    };
+
+    // Initialize redirect handling
+    initialize();
+
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChanged(auth, 
+      (user) => {
+        console.log('Auth state changed:', user ? 'User is signed in' : 'No user signed in');
+        if (mounted) {
+          setIsFirebaseInitialized(true);
+        }
+      },
+      (error) => {
+        console.error('Error initializing Firebase Auth:', error);
+        if (mounted) {
+          setIsFirebaseInitialized(true);
+        }
+      }
+    );
+
+    // Cleanup function
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
-  if (!isFirebaseInitialized) {
-    // Show loading state while Firebase initializes
+  // Show loading state while Firebase initializes or handling redirect
+  if (!isFirebaseInitialized || isHandlingRedirect) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
