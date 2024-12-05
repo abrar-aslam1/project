@@ -153,7 +153,7 @@ export function AuthButton() {
           </div>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900">
             <User className="h-4 w-4" />
-            <span className="text-sm">{user.email}</span>
+            <span className="text-sm truncate max-w-[150px]">{user.email}</span>
           </div>
         </div>
         <Button 
@@ -182,12 +182,12 @@ export function AuthButton() {
             Sign In
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="sm:max-w-[400px] w-[calc(100%-2rem)] p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Authentication</DialogTitle>
+            <DialogTitle className="text-center sm:text-left">Sign In</DialogTitle>
           </DialogHeader>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Create Account</TabsTrigger>
             </TabsList>
@@ -196,7 +196,7 @@ export function AuthButton() {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full"
+                  className="w-full h-10"
                   onClick={handleGoogleSignIn}
                   disabled={isSubmitting}
                 >
@@ -224,7 +224,7 @@ export function AuthButton() {
                   )}
                   Continue with Google
                 </Button>
-                <div className="relative">
+                <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
                   </div>
@@ -250,6 +250,7 @@ export function AuthButton() {
                       required
                       disabled={isSubmitting}
                       autoComplete="email"
+                      className="h-10"
                     />
                   </div>
                   <div className="space-y-2">
@@ -263,9 +264,10 @@ export function AuthButton() {
                       disabled={isSubmitting}
                       minLength={6}
                       autoComplete="current-password"
+                      className="h-10"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -286,7 +288,7 @@ export function AuthButton() {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full"
+                  className="w-full h-10"
                   onClick={handleGoogleSignIn}
                   disabled={isSubmitting}
                 >
@@ -314,7 +316,7 @@ export function AuthButton() {
                   )}
                   Continue with Google
                 </Button>
-                <div className="relative">
+                <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
                   </div>
@@ -340,6 +342,7 @@ export function AuthButton() {
                       required
                       disabled={isSubmitting}
                       autoComplete="email"
+                      className="h-10"
                     />
                   </div>
                   <div className="space-y-2">
@@ -353,10 +356,11 @@ export function AuthButton() {
                       disabled={isSubmitting}
                       minLength={6}
                       autoComplete="new-password"
+                      className="h-10"
                     />
                     <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full h-10" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
