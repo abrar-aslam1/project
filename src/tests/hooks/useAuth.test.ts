@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useAuth } from '../../hooks/useAuth';
-import { auth } from '../../lib/firebase';
 import { User } from 'firebase/auth';
 import { UserPreferences } from '../../types/news';
 
@@ -112,7 +111,7 @@ describe('useAuth', () => {
         user: mockRedirectUser
       });
 
-      const { result } = renderHook(() => useAuth());
+      renderHook(() => useAuth());
 
       // Wait for redirect result to be processed
       await act(async () => {

@@ -7,8 +7,6 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   AuthError,
-  AuthErrorCodes,
-  fetchSignInMethodsForEmail,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
