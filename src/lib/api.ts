@@ -6,7 +6,6 @@ const API_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
 
 export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   try {
-    console.log('Fetching crypto news...');
     const response = await fetch('https://crypto-news16.p.rapidapi.com/news/top/50', {
       method: 'GET',
       headers: {
@@ -20,7 +19,6 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
     }
 
     const data = await response.json();
-    console.log('Fetched crypto news:', data);
     
     // Transform API response to match our NewsArticle type
     const articles: NewsArticle[] = data.map((item: any, index: number) => {
@@ -44,21 +42,21 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
 
     return articles;
   } catch (error) {
-    console.error('Error fetching news:', error);
-    // Return sample news as fallback
-    return sampleNews;
+    console.error('Error fetching crypto news:', error);
+    throw error; // Let the caller handle the error
   }
 }
 
 // Fetch all news (now just crypto news since Twitter is removed)
 export async function fetchAllNews(): Promise<NewsArticle[]> {
   try {
-    console.log('Fetching all news...');
+    console.log('Fetching news...');
     const news = await fetchCryptoNews();
-    console.log('News count:', news.length);
+    console.log(`Successfully fetched ${news.length} articles`);
     return news;
   } catch (error) {
-    console.error('Error fetching all news:', error);
+    console.error('Error fetching news:', error);
+    console.log('Falling back to sample data');
     return sampleNews;
   }
 }
