@@ -11,7 +11,8 @@ import {
   fetchSignInMethodsForEmail,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
@@ -28,64 +29,92 @@ export function useAuth() {
   const [tempUser, setTempUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        console.log('User authenticated:', firebaseUser.email);
-        
-        try {
-          // Check for preferences first
-          const preferences = await getUserPreferencesFromFirestore(firebaseUser.uid);
-          
-          if (!preferences) {
-            // If no preferences, show dialog and store temp user
-            console.log('No preferences found, showing preferences dialog');
-            setShowPreferences(true);
-            setTempUser(firebaseUser);
-            // Set basic user info but don't complete the sign-in flow
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-              photoURL: firebaseUser.photoURL,
-              favorites: []
-            });
+    let unsubscribe: () => void;
+    
+    const initializeAuth = async () => {
+      try {
+        // First check for any redirect result
+        if (isMobileDevice()) {
+          const result = await getRedirectResult(auth);
+          if (result?.user) {
+            console.log('Redirect sign-in successful:', result.user.email);
+            // Check for preferences
+            const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+            if (!preferences) {
+              setShowPreferences(true);
+              setTempUser(result.user);
+            }
+          }
+        }
+
+        // Then set up the auth state listener
+        unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+          if (firebaseUser) {
+            console.log('User authenticated:', firebaseUser.email);
+            
+            try {
+              // Check for preferences
+              const preferences = await getUserPreferencesFromFirestore(firebaseUser.uid);
+              
+              if (!preferences) {
+                console.log('No preferences found, showing preferences dialog');
+                setShowPreferences(true);
+                setTempUser(firebaseUser);
+                // Set basic user info but don't complete the sign-in flow
+                setUser({
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+                  photoURL: firebaseUser.photoURL,
+                  favorites: []
+                });
+              } else {
+                // If preferences exist, complete the sign-in flow
+                console.log('Preferences found, completing sign-in');
+                setUser({
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+                  photoURL: firebaseUser.photoURL,
+                  favorites: [],
+                  preferences
+                });
+                setShowPreferences(false);
+                setTempUser(null);
+              }
+            } catch (error) {
+              console.error('Error checking preferences:', error);
+              // On error, show preferences dialog
+              setShowPreferences(true);
+              setTempUser(firebaseUser);
+              setUser({
+                uid: firebaseUser.uid,
+                email: firebaseUser.email,
+                displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+                photoURL: firebaseUser.photoURL,
+                favorites: []
+              });
+            }
           } else {
-            // If preferences exist, complete the sign-in flow
-            console.log('Preferences found, completing sign-in');
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-              photoURL: firebaseUser.photoURL,
-              favorites: [],
-              preferences
-            });
+            console.log('No user authenticated');
+            setUser(null);
             setShowPreferences(false);
             setTempUser(null);
           }
-        } catch (error) {
-          console.error('Error checking preferences:', error);
-          // On error, show preferences dialog
-          setShowPreferences(true);
-          setTempUser(firebaseUser);
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            photoURL: firebaseUser.photoURL,
-            favorites: []
-          });
-        }
-      } else {
-        console.log('No user authenticated');
-        setUser(null);
-        setShowPreferences(false);
-        setTempUser(null);
+          setLoading(false);
+        });
+      } catch (error) {
+        console.error('Error in auth initialization:', error);
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    initializeAuth();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const handleAuthError = (error: AuthError) => {
@@ -117,6 +146,7 @@ export function useAuth() {
       if (isMobileDevice()) {
         console.log('Using redirect for mobile device');
         await signInWithRedirect(auth, provider);
+        // The redirect will reload the page, and the result will be handled in useEffect
       } else {
         console.log('Using popup for desktop device');
         const result = await signInWithPopup(auth, provider);
