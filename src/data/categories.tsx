@@ -1,5 +1,5 @@
 import { Category } from '../types/news';
-import { Bitcoin, Coins, Wallet, Frame, MessageCircle, User } from 'lucide-react';
+import { Bitcoin, Coins, Wallet, Frame, MessageCircle } from 'lucide-react';
 
 export const categories: Category[] = [
   {

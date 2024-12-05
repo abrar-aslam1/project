@@ -1,7 +1,7 @@
 import { NewsArticle } from '../types/news';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { useAuthContext } from '../hooks/useAuthContext';
-import { ExternalLink, Heart, MessageCircle, Repeat, Bookmark, Link } from 'lucide-react';
+import { ExternalLink, Heart, MessageCircle, Repeat, Bookmark } from 'lucide-react';
 
 interface NewsCardProps {
   article: NewsArticle;

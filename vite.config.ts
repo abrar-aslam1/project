@@ -13,6 +13,11 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    host: true, // Needed for proper OAuth redirect handling
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'unsafe-none'
+    }
   },
   build: {
     outDir: 'dist',

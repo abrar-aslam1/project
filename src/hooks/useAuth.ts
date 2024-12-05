@@ -8,17 +8,11 @@ import {
   onAuthStateChanged,
   AuthError,
   GoogleAuthProvider,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
-
-// Helper function to detect mobile devices
-const isMobileDevice = () => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -32,16 +26,14 @@ export function useAuth() {
     const initializeAuth = async () => {
       try {
         // First check for any redirect result
-        if (isMobileDevice()) {
-          const result = await getRedirectResult(auth);
-          if (result?.user) {
-            console.log('Redirect sign-in successful:', result.user.email);
-            // Check for preferences
-            const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-            if (!preferences) {
-              setShowPreferences(true);
-              setTempUser(result.user);
-            }
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          console.log('Redirect sign-in successful:', result.user.email);
+          // Check for preferences
+          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+          if (!preferences) {
+            setShowPreferences(true);
+            setTempUser(result.user);
           }
         }
 
@@ -121,12 +113,18 @@ export function useAuth() {
     
     if (!navigator.onLine) {
       errorMessage = 'No internet connection. Please check your network and try again.';
-    } else if (error.code === 'auth/popup-closed-by-user') {
-      errorMessage = 'Sign-in was cancelled.';
-    } else if (error.code === 'auth/popup-blocked') {
-      errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
     } else if (error.code === 'auth/network-request-failed') {
       errorMessage = 'Network error. Please check your connection and try again.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
+    } else if (error.code === 'auth/user-disabled') {
+      errorMessage = 'This account has been disabled.';
+    } else if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password.';
+    } else if (error.code === 'auth/too-many-requests') {
+      errorMessage = 'Too many attempts. Please try again later.';
     }
 
     throw new Error(errorMessage);
@@ -141,15 +139,9 @@ export function useAuth() {
         prompt: 'select_account'
       });
       
-      if (isMobileDevice()) {
-        console.log('Using redirect for mobile device');
-        await signInWithRedirect(auth, provider);
-        // The redirect will reload the page, and the result will be handled in useEffect
-      } else {
-        console.log('Using popup for desktop device');
-        const result = await signInWithPopup(auth, provider);
-        console.log('Google sign in successful:', result.user.email);
-      }
+      console.log('Using redirect for sign in');
+      await signInWithRedirect(auth, provider);
+      // The redirect will reload the page, and the result will be handled in useEffect
     } catch (error: any) {
       handleAuthError(error);
     } finally {

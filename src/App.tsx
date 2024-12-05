@@ -26,26 +26,26 @@ function App() {
             <div className="flex h-16 items-center justify-between">
               {/* Logo */}
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-xl bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent" style={{ fontFamily: 'Diaria Pro', fontWeight: 800 }}>
                   Token•eur™
                 </h1>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-sm text-gray-600 dark:text-gray-400" style={{ fontFamily: 'Diaria Pro', fontWeight: 500 }}>
                   Crypto News & Tools
                 </span>
               </div>
 
               {/* Navigation */}
               <nav className="flex items-center gap-4">
-                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" style={{ fontFamily: 'Diaria Pro', fontWeight: 500 }}>
                   News
                 </a>
-                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" style={{ fontFamily: 'Diaria Pro', fontWeight: 500 }}>
                   Analysis
                 </a>
-                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" style={{ fontFamily: 'Diaria Pro', fontWeight: 500 }}>
                   Topics
                 </a>
-                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" style={{ fontFamily: 'Diaria Pro', fontWeight: 500 }}>
                   Sources
                 </a>
               </nav>
