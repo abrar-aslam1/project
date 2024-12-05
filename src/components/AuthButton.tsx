@@ -103,7 +103,7 @@ export function AuthButton() {
   // Show minimal loading state while checking auth
   if (authLoading && !user) {
     return (
-      <Button variant="ghost" size="icon" disabled>
+      <Button variant="ghost" size="sm" className="min-w-[40px] h-8" disabled>
         <Loader2 className="h-4 w-4 animate-spin" />
       </Button>
     );
@@ -158,14 +158,15 @@ export function AuthButton() {
         </div>
         <Button 
           variant="ghost" 
-          size="icon" 
+          size="sm"
           onClick={signOut} 
           disabled={authLoading}
+          className="min-w-[40px] h-8"
         >
           {authLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4" />
           )}
         </Button>
       </div>
@@ -176,12 +177,12 @@ export function AuthButton() {
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline">
-            <LogIn className="h-5 w-5 mr-2" />
+          <Button variant="outline" size="sm" className="h-8">
+            <LogIn className="h-4 w-4 mr-2" />
             Sign In
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Authentication</DialogTitle>
           </DialogHeader>

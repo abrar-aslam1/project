@@ -6,7 +6,9 @@ import {
   Auth,
   onAuthStateChanged,
   User,
-  AuthError
+  AuthError,
+  initializeAuth,
+  indexedDBLocalPersistence
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { UserPreferences } from '../types/news';
@@ -21,108 +23,45 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 } as const;
 
-// Debug logging for environment variables
-console.log('Environment Variables Status:', {
-  apiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: !!import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: !!import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: !!import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: !!import.meta.env.VITE_FIREBASE_APP_ID
-});
-
-type FirebaseConfigKey = keyof typeof firebaseConfig;
-
-// Validate configuration
-const validateConfig = () => {
-  const requiredFields: FirebaseConfigKey[] = [
-    'apiKey',
-    'authDomain',
-    'projectId',
-    'storageBucket',
-    'messagingSenderId',
-    'appId'
-  ];
-
-  const missingFields = requiredFields.filter(field => !firebaseConfig[field]);
-  
-  if (missingFields.length > 0) {
-    console.error('Missing Firebase configuration fields:', missingFields);
-    throw new Error(`Missing required Firebase configuration fields: ${missingFields.join(', ')}`);
-  }
-
-  // Log sanitized config for debugging
-  console.log('Firebase Configuration:', {
-    authDomain: firebaseConfig.authDomain,
-    projectId: firebaseConfig.projectId,
-    storageBucket: firebaseConfig.storageBucket,
-    messagingSenderId: firebaseConfig.messagingSenderId,
-    // Omit sensitive data
-    apiKey: '***',
-    appId: '***'
-  });
-};
-
-// Initialize Firebase
+// Initialize Firebase lazily
 let app: FirebaseApp;
 let auth: Auth;
 let db: ReturnType<typeof getFirestore>;
 
-try {
-  console.log('Starting Firebase initialization...');
-  validateConfig();
-  
-  // Check if Firebase is already initialized
-  if (!getApps().length) {
-    console.log('Initializing new Firebase app...');
-    app = initializeApp(firebaseConfig);
-    console.log('Firebase app initialized successfully');
-  } else {
-    console.log('Using existing Firebase app');
-    app = getApps()[0];
-  }
+const initializeFirebase = () => {
+  if (!app) {
+    // Check if Firebase is already initialized
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
 
-  // Initialize Auth
-  auth = getAuth(app);
-  console.log('Firebase auth initialized successfully');
-
-  // Initialize Firestore
-  db = getFirestore(app);
-  console.log('Firestore initialized successfully');
-
-  // Set persistence
-  setPersistence(auth, browserLocalPersistence)
-    .then(() => {
-      console.log('Firebase persistence set to local');
-    })
-    .catch((error: AuthError) => {
-      console.error('Error setting persistence:', {
-        code: error.code,
-        message: error.message,
-        stack: error.stack
+    try {
+      // Try to initialize auth with IndexedDB for better performance
+      auth = initializeAuth(app, {
+        persistence: [indexedDBLocalPersistence, browserLocalPersistence]
       });
-    });
+    } catch (error) {
+      // Fallback to default auth if IndexedDB is not available
+      auth = getAuth(app);
+      // Set persistence without blocking initialization
+      setPersistence(auth, browserLocalPersistence).catch((error: AuthError) => {
+        console.error('Error setting persistence:', error);
+      });
+    }
 
-  // Test auth state
-  onAuthStateChanged(auth, (user) => {
-    console.log('Auth state changed:', user ? 'User is signed in' : 'No user signed in');
-  });
-
-} catch (error) {
-  if (error instanceof Error) {
-    console.error('Firebase initialization error:', {
-      message: error.message,
-      stack: error.stack
-    });
+    // Initialize Firestore
+    db = getFirestore(app);
   }
-  throw error;
-}
+  return { auth, db };
+};
 
 // Helper functions for Firestore operations
 export const saveUserPreferencesToFirestore = async (uid: string, preferences: UserPreferences) => {
+  const { db } = initializeFirebase();
   try {
     await setDoc(doc(db, 'users', uid), { preferences }, { merge: true });
-    console.log('User preferences saved successfully');
   } catch (error) {
     console.error('Error saving user preferences:', error);
     throw error;
@@ -130,6 +69,7 @@ export const saveUserPreferencesToFirestore = async (uid: string, preferences: U
 };
 
 export const getUserPreferencesFromFirestore = async (uid: string) => {
+  const { db } = initializeFirebase();
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
@@ -142,29 +82,25 @@ export const getUserPreferencesFromFirestore = async (uid: string) => {
   }
 };
 
+// Initialize Firebase on first import
+const { auth: initializedAuth, db: initializedDb } = initializeFirebase();
+
 // Export initialized instances
-export { auth, db };
+export { initializedAuth as auth, initializedDb as db };
 
 // Export a function to check Firebase initialization status
 export const checkFirebaseInitialization = (): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    if (!auth) {
-      console.error('Firebase Auth not initialized');
-      reject(new Error('Firebase Auth not initialized'));
-      return;
-    }
-
+  return new Promise((resolve) => {
+    const { auth } = initializeFirebase();
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user: User | null) => {
-        console.log('Firebase initialization check:', user ? 'User is signed in' : 'No user signed in');
+      () => {
         unsubscribe();
         resolve(true);
       },
-      (error: Error) => {
-        console.error('Firebase initialization check error:', error);
+      () => {
         unsubscribe();
-        reject(error);
+        resolve(true);
       }
     );
   });

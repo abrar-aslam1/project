@@ -31,70 +31,50 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isFirebaseInitialized, setIsFirebaseInitialized] = useState(false);
-  const [isHandlingRedirect, setIsHandlingRedirect] = useState(true);
+  const [isCheckingRedirect, setIsCheckingRedirect] = useState(true);
   const authHook = useAuth();
 
   useEffect(() => {
-    let mounted = true;
-
-    // Handle redirect result and set up auth state listener
-    const initialize = async () => {
+    // Handle redirect result without blocking the UI
+    const checkRedirectResult = async () => {
       try {
-        // Handle any pending redirect result first
-        console.log('Checking for redirect result...');
         const result = await getRedirectResult(auth, browserPopupRedirectResolver);
         if (result) {
           console.log('Redirect result processed:', result.user.email);
-        } else {
-          console.log('No redirect result found');
         }
       } catch (error) {
         console.error('Error handling redirect result:', error);
       } finally {
-        if (mounted) {
-          setIsHandlingRedirect(false);
-        }
+        setIsCheckingRedirect(false);
       }
     };
 
-    // Initialize redirect handling
-    initialize();
+    // Start checking redirect result
+    checkRedirectResult();
 
     // Set up auth state listener
     const unsubscribe = onAuthStateChanged(auth, 
       (user) => {
         console.log('Auth state changed:', user ? 'User is signed in' : 'No user signed in');
-        if (mounted) {
-          setIsFirebaseInitialized(true);
-        }
       },
       (error) => {
-        console.error('Error initializing Firebase Auth:', error);
-        if (mounted) {
-          setIsFirebaseInitialized(true);
-        }
+        console.error('Error in auth state change:', error);
       }
     );
 
-    // Cleanup function
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
+    return unsubscribe;
   }, []);
 
-  // Show loading state while Firebase initializes or handling redirect
-  if (!isFirebaseInitialized || isHandlingRedirect) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-      </div>
-    );
-  }
+  // Show a minimal loading indicator in the corner instead of blocking the whole UI
+  const loadingIndicator = (isCheckingRedirect || authHook.loading) && (
+    <div className="fixed top-4 right-4 z-50">
+      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
+    </div>
+  );
 
   return (
     <AuthContext.Provider value={authHook}>
+      {loadingIndicator}
       {children}
     </AuthContext.Provider>
   );
