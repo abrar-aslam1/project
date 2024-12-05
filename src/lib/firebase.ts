@@ -6,9 +6,7 @@ import {
   Auth,
   onAuthStateChanged,
   User,
-  AuthError,
-  initializeAuth,
-  indexedDBLocalPersistence
+  AuthError
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { UserPreferences } from '../types/news';
@@ -23,45 +21,34 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 } as const;
 
-// Initialize Firebase lazily
+// Initialize Firebase
 let app: FirebaseApp;
 let auth: Auth;
 let db: ReturnType<typeof getFirestore>;
 
-const initializeFirebase = () => {
-  if (!app) {
-    // Check if Firebase is already initialized
-    if (!getApps().length) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApps()[0];
-    }
+// Initialize Firebase if not already initialized
+if (!getApps().length) {
+  console.log('Initializing new Firebase app...');
+  app = initializeApp(firebaseConfig);
+} else {
+  console.log('Using existing Firebase app');
+  app = getApps()[0];
+}
 
-    try {
-      // Try to initialize auth with IndexedDB for better performance
-      auth = initializeAuth(app, {
-        persistence: [indexedDBLocalPersistence, browserLocalPersistence]
-      });
-    } catch (error) {
-      // Fallback to default auth if IndexedDB is not available
-      auth = getAuth(app);
-      // Set persistence without blocking initialization
-      setPersistence(auth, browserLocalPersistence).catch((error: AuthError) => {
-        console.error('Error setting persistence:', error);
-      });
-    }
+// Initialize Auth and Firestore
+auth = getAuth(app);
+db = getFirestore(app);
 
-    // Initialize Firestore
-    db = getFirestore(app);
-  }
-  return { auth, db };
-};
+// Set persistence without blocking initialization
+setPersistence(auth, browserLocalPersistence).catch((error: AuthError) => {
+  console.error('Error setting persistence:', error);
+});
 
 // Helper functions for Firestore operations
 export const saveUserPreferencesToFirestore = async (uid: string, preferences: UserPreferences) => {
-  const { db } = initializeFirebase();
   try {
     await setDoc(doc(db, 'users', uid), { preferences }, { merge: true });
+    console.log('User preferences saved successfully');
   } catch (error) {
     console.error('Error saving user preferences:', error);
     throw error;
@@ -69,7 +56,6 @@ export const saveUserPreferencesToFirestore = async (uid: string, preferences: U
 };
 
 export const getUserPreferencesFromFirestore = async (uid: string) => {
-  const { db } = initializeFirebase();
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
@@ -82,16 +68,12 @@ export const getUserPreferencesFromFirestore = async (uid: string) => {
   }
 };
 
-// Initialize Firebase on first import
-const { auth: initializedAuth, db: initializedDb } = initializeFirebase();
-
 // Export initialized instances
-export { initializedAuth as auth, initializedDb as db };
+export { auth, db };
 
 // Export a function to check Firebase initialization status
 export const checkFirebaseInitialization = (): Promise<boolean> => {
   return new Promise((resolve) => {
-    const { auth } = initializeFirebase();
     const unsubscribe = onAuthStateChanged(
       auth,
       () => {

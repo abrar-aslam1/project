@@ -11,9 +11,7 @@ import {
   fetchSignInMethodsForEmail,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  browserPopupRedirectResolver
+  signInWithRedirect
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
@@ -30,40 +28,7 @@ export function useAuth() {
   const [tempUser, setTempUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-
-    // Handle redirect result when the page loads
-    const handleRedirectResult = async () => {
-      try {
-        console.log('Checking for redirect result...');
-        const result = await getRedirectResult(auth, browserPopupRedirectResolver);
-        if (result?.user) {
-          console.log('Google sign in via redirect successful:', result.user.email);
-          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-          if (!preferences) {
-            console.log('No preferences found for Google user, showing dialog');
-            setShowPreferences(true);
-            setTempUser(result.user);
-          }
-        } else {
-          console.log('No redirect result found');
-        }
-      } catch (error: any) {
-        console.error('Error handling redirect result:', {
-          code: error.code,
-          message: error.message,
-          stack: error.stack
-        });
-        // Don't throw the error here to prevent blocking the auth flow
-      }
-    };
-
-    // Call handleRedirectResult immediately
-    handleRedirectResult();
-
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (!mounted) return;
-
       if (firebaseUser) {
         console.log('User authenticated:', firebaseUser.email);
         
@@ -118,73 +83,26 @@ export function useAuth() {
         setTempUser(null);
       }
       setLoading(false);
-    }, (error) => {
-      console.error('Auth state change error:', error);
-      if (mounted) setLoading(false);
     });
 
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
-  const handleAuthError = async (error: AuthError) => {
-    console.error('Authentication error details:', {
-      code: error.code,
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      customData: error.customData
-    });
-
-    if (!navigator.onLine) {
-      throw new Error('No internet connection. Please check your network and try again.');
-    }
-
+  const handleAuthError = (error: AuthError) => {
+    console.error('Authentication error:', error);
     let errorMessage = 'An error occurred. Please try again.';
-    switch (error.code) {
-      case AuthErrorCodes.EMAIL_EXISTS:
-        errorMessage = 'An account already exists with this email.';
-        break;
-      case AuthErrorCodes.INVALID_EMAIL:
-        errorMessage = 'Invalid email format.';
-        break;
-      case AuthErrorCodes.WEAK_PASSWORD:
-        errorMessage = 'Password is too weak. It must be at least 6 characters.';
-        break;
-      case AuthErrorCodes.OPERATION_NOT_ALLOWED:
-        errorMessage = 'Email/Password authentication is not enabled.';
-        break;
-      case AuthErrorCodes.USER_DISABLED:
-        errorMessage = 'This account has been disabled.';
-        break;
-      case AuthErrorCodes.TOO_MANY_ATTEMPTS_TRY_LATER:
-        errorMessage = 'Too many attempts. Please try again later.';
-        break;
-      case 'auth/network-request-failed':
-        errorMessage = 'Network error. Please check your connection and try again.';
-        break;
-      case 'auth/internal-error':
-        errorMessage = 'An internal error occurred. Please try again.';
-        break;
-      case 'auth/popup-closed-by-user':
-        errorMessage = 'Sign-in popup was closed before completion.';
-        break;
-      case 'auth/cancelled-popup-request':
-        errorMessage = 'The sign-in popup was cancelled.';
-        break;
-      case 'auth/popup-blocked':
-        errorMessage = 'Sign-in popup was blocked by the browser.';
-        break;
-      default:
-        errorMessage = `Authentication error: ${error.message}`;
+    
+    if (!navigator.onLine) {
+      errorMessage = 'No internet connection. Please check your network and try again.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      errorMessage = 'Sign-in was cancelled.';
+    } else if (error.code === 'auth/popup-blocked') {
+      errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
+    } else if (error.code === 'auth/network-request-failed') {
+      errorMessage = 'Network error. Please check your connection and try again.';
     }
 
-    const enhancedError = new Error(errorMessage);
-    enhancedError.name = error.name;
-    enhancedError.stack = error.stack;
-    throw enhancedError;
+    throw new Error(errorMessage);
   };
 
   const signInWithGoogle = async () => {
@@ -198,33 +116,11 @@ export function useAuth() {
       
       if (isMobileDevice()) {
         console.log('Using redirect for mobile device');
-        try {
-          await signInWithRedirect(auth, provider, browserPopupRedirectResolver);
-          console.log('Redirect initiated successfully');
-        } catch (redirectError: any) {
-          console.error('Redirect failed, falling back to popup:', redirectError);
-          // If redirect fails, fall back to popup
-          const result = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
-          console.log('Fallback popup sign in successful:', result.user.email);
-          
-          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-          if (!preferences) {
-            console.log('No preferences found for Google user, showing dialog');
-            setShowPreferences(true);
-            setTempUser(result.user);
-          }
-        }
+        await signInWithRedirect(auth, provider);
       } else {
         console.log('Using popup for desktop device');
-        const result = await signInWithPopup(auth, provider, browserPopupRedirectResolver);
+        const result = await signInWithPopup(auth, provider);
         console.log('Google sign in successful:', result.user.email);
-        
-        const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-        if (!preferences) {
-          console.log('No preferences found for Google user, showing dialog');
-          setShowPreferences(true);
-          setTempUser(result.user);
-        }
       }
     } catch (error: any) {
       handleAuthError(error);
@@ -237,22 +133,7 @@ export function useAuth() {
     try {
       console.log('Attempting sign in with:', email);
       setLoading(true);
-
-      const methods = await fetchSignInMethodsForEmail(auth, email);
-      if (methods.length === 0) {
-        throw new Error('No account exists with this email. Please create an account first.');
-      }
-
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Sign in successful:', userCredential.user.email);
-      
-      if (!userCredential.user.displayName) {
-        const defaultDisplayName = email.split('@')[0];
-        await updateProfile(userCredential.user, {
-          displayName: defaultDisplayName
-        });
-        console.log('Display name set to:', defaultDisplayName);
-      }
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -260,48 +141,20 @@ export function useAuth() {
     }
   };
 
-  const createAccount = async (email: string, password: string): Promise<void> => {
+  const createAccount = async (email: string, password: string) => {
     try {
       console.log('Creating new account for:', email);
       setLoading(true);
-      
-      if (!email || !email.includes('@')) {
-        throw new Error('Invalid email format');
-      }
-      if (!password || password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
-      }
-
-      const methods = await fetchSignInMethodsForEmail(auth, email);
-      if (methods.length > 0) {
-        throw new Error('An account already exists with this email. Please sign in instead.');
-      }
-
-      console.log('Attempting to create user account with Firebase...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Account created successfully:', userCredential.user.email);
       
       const defaultDisplayName = email.split('@')[0];
-      console.log('Setting display name to:', defaultDisplayName);
-      
       await updateProfile(userCredential.user, {
         displayName: defaultDisplayName
       });
-      console.log('Display name set successfully');
-
-      // Store the user temporarily and show preferences dialog
+      
       setTempUser(userCredential.user);
       setShowPreferences(true);
     } catch (error: any) {
-      console.error('Detailed account creation error:', {
-        code: error.code,
-        message: error.message,
-        name: error.name,
-        stack: error.stack,
-        customData: error.customData,
-        email: email,
-        passwordLength: password?.length
-      });
       handleAuthError(error);
     } finally {
       setLoading(false);
@@ -312,9 +165,7 @@ export function useAuth() {
     try {
       setLoading(true);
       await saveUserPreferencesToFirestore(uid, preferences);
-      console.log('Preferences saved successfully');
       
-      // Update local user state with preferences and complete the sign-in flow
       setUser(prev => prev ? {
         ...prev,
         preferences
@@ -332,7 +183,6 @@ export function useAuth() {
 
   const updateDisplayName = async (newDisplayName: string) => {
     try {
-      console.log('Updating display name to:', newDisplayName);
       setLoading(true);
       const currentUser = auth.currentUser;
       if (!currentUser) {
@@ -342,7 +192,6 @@ export function useAuth() {
       await updateProfile(currentUser, {
         displayName: newDisplayName
       });
-      console.log('Display name updated successfully');
       
       setUser(prev => prev ? {
         ...prev,
@@ -357,10 +206,8 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      console.log('Attempting sign out');
       setLoading(true);
       await firebaseSignOut(auth);
-      console.log('Sign out successful');
     } catch (error: any) {
       handleAuthError(error);
     } finally {

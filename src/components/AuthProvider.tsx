@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { User, UserPreferences } from '../types/news';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser, getRedirectResult, browserPopupRedirectResolver } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser, getRedirectResult } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Handle redirect result without blocking the UI
     const checkRedirectResult = async () => {
       try {
-        const result = await getRedirectResult(auth, browserPopupRedirectResolver);
+        const result = await getRedirectResult(auth);
         if (result) {
           console.log('Redirect result processed:', result.user.email);
         }
