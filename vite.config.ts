@@ -13,10 +13,20 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
-    host: true, // Needed for proper OAuth redirect handling
+    host: true,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
       'Cross-Origin-Embedder-Policy': 'unsafe-none'
+    }
+  },
+  preview: {
+    viewport: {
+      width: 375, // iPhone viewport width
+      height: 667, // iPhone viewport height
+      deviceScaleFactor: 2,
+      isMobile: true,
+      hasTouch: true,
+      isLandscape: false
     }
   },
   build: {

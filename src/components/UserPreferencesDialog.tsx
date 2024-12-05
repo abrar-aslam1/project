@@ -59,9 +59,18 @@ export function UserPreferencesDialog({
         darkMode: initialPreferences?.darkMode || false
       });
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving preferences:', err);
-      setError('Failed to save preferences. Please try again.');
+      // More specific error messages based on the error type
+      if (err.code === 'permission-denied') {
+        setError('You do not have permission to save preferences. Please try signing out and back in.');
+      } else if (err.code === 'unavailable') {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else if (err.code === 'not-found') {
+        setError('Unable to save preferences. Please try signing out and back in.');
+      } else {
+        setError('Failed to save preferences. Please try again.');
+      }
     } finally {
       setIsSaving(false);
     }

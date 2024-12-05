@@ -103,7 +103,7 @@ export function AuthButton() {
   // Show minimal loading state while checking auth
   if (authLoading && !user) {
     return (
-      <Button variant="ghost" size="sm" className="min-w-[40px] h-8" disabled>
+      <Button variant="ghost" size="sm" className="min-w-[40px] h-8 sm:h-10" disabled>
         <Loader2 className="h-4 w-4 animate-spin" />
       </Button>
     );
@@ -134,7 +134,7 @@ export function AuthButton() {
               </div>
             ) : (
               <>
-                <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                <span className="hidden sm:inline text-sm font-medium text-purple-600 dark:text-purple-400">
                   {user.displayName}
                 </span>
                 <Button
@@ -144,14 +144,14 @@ export function AuthButton() {
                     setIsEditingName(true);
                     setNewDisplayName(user.displayName || '');
                   }}
-                  className="h-6 w-6 p-0"
+                  className="hidden sm:flex h-6 w-6 p-0"
                 >
                   <Edit2 className="h-3 w-3" />
                 </Button>
               </>
             )}
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900">
             <User className="h-4 w-4" />
             <span className="text-sm truncate max-w-[150px]">{user.email}</span>
           </div>
@@ -161,7 +161,7 @@ export function AuthButton() {
           size="sm"
           onClick={signOut} 
           disabled={authLoading}
-          className="min-w-[40px] h-8"
+          className="min-w-[40px] h-8 sm:h-10"
         >
           {authLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -177,9 +177,9 @@ export function AuthButton() {
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="h-8">
-            <LogIn className="h-4 w-4 mr-2" />
-            Sign In
+          <Button variant="outline" size="sm" className="h-8 sm:h-10 px-3 sm:px-4">
+            <LogIn className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Sign In</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[400px] w-[calc(100%-2rem)] p-4 sm:p-6">
