@@ -1,24 +1,38 @@
-import { NewsArticle } from '../types/news';
+import { useNews } from '../hooks/useNews';
 import { NewsCard } from './NewsCard';
 
 interface NewsGridProps {
-  articles: NewsArticle[];
+  category: string;
+  subCategory?: string;
 }
 
-export function NewsGrid({ articles }: NewsGridProps) {
-  if (!articles.length) {
+export function NewsGrid({ category, subCategory }: NewsGridProps) {
+  const { news, loading, error } = useNews(category, subCategory);
+
+  if (loading) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 dark:text-gray-400">
-          No articles found. Try adjusting your preferences or selecting different categories.
-        </p>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="h-64 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 dark:text-red-400">
+        {error}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {articles.map((article) => (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {news.map((article) => (
         <NewsCard key={article.id} article={article} />
       ))}
     </div>

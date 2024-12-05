@@ -3,7 +3,7 @@ import { NewsArticle, NewsPreferences } from '../types/news';
 import { fetchAllNews } from '../lib/api';
 import { sampleNews } from '../data/sampleNews';
 
-export function useNews(category: string, subCategory: string, preferences?: NewsPreferences) {
+export function useNews(category: string, subCategory?: string, preferences?: NewsPreferences) {
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,8 +11,8 @@ export function useNews(category: string, subCategory: string, preferences?: New
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        console.log('Fetching crypto news...');
-        const articles = await fetchAllNews();
+        console.log('Fetching news...', { category, subCategory });
+        const articles = await fetchAllNews(category, subCategory);
         
         // Filter news based on user preferences if they exist
         let filteredNews = articles;
@@ -27,13 +27,6 @@ export function useNews(category: string, subCategory: string, preferences?: New
             }
             
             return categoryMatch;
-          });
-        } else {
-          // If no preferences, filter based on selected category/subcategory
-          filteredNews = articles.filter(article => {
-            if (category === 'all') return true;
-            if (subCategory === 'all') return article.category === category;
-            return article.category === category && article.subCategory === subCategory;
           });
         }
 
@@ -54,11 +47,12 @@ export function useNews(category: string, subCategory: string, preferences?: New
             }
             return categoryMatch;
           });
-        } else {
+        } else if (category !== 'all') {
           filteredNews = sampleNews.filter(article => {
-            if (category === 'all') return true;
-            if (subCategory === 'all') return article.category === category;
-            return article.category === category && article.subCategory === subCategory;
+            if (subCategory) {
+              return article.category === category && article.subCategory === subCategory;
+            }
+            return article.category === category;
           });
         }
 

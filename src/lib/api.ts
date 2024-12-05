@@ -4,6 +4,32 @@ import { sampleNews } from '../data/sampleNews';
 const API_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const API_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
 
+export async function fetchTwitterFeed(account?: string): Promise<NewsArticle[]> {
+  try {
+    console.log('Fetching tweets for account:', account);
+    const response = await fetch('http://localhost:3002/api/twitter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        accounts_input: account // If no account is provided, the server will randomly select one
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Twitter API request failed with status ${response.status}`);
+    }
+
+    const tweets = await response.json();
+    console.log('Fetched tweets:', tweets);
+    return tweets;
+  } catch (error) {
+    console.error('Error fetching Twitter feed:', error);
+    return []; // Return empty array on error
+  }
+}
+
 export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   try {
     const response = await fetch('https://crypto-news16.p.rapidapi.com/news/top/50', {
@@ -47,13 +73,40 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   }
 }
 
-// Fetch all news (now just crypto news since Twitter is removed)
-export async function fetchAllNews(): Promise<NewsArticle[]> {
+// Fetch all news (combining crypto news and Twitter feed)
+export async function fetchAllNews(category?: string, subCategory?: string): Promise<NewsArticle[]> {
   try {
-    console.log('Fetching news...');
-    const news = await fetchCryptoNews();
-    console.log(`Successfully fetched ${news.length} articles`);
-    return news;
+    console.log('Fetching news...', { category, subCategory });
+
+    // If category is social and a subcategory (Twitter account) is specified
+    if (category === 'social' && subCategory && subCategory.startsWith('@')) {
+      const tweets = await fetchTwitterFeed(subCategory);
+      console.log(`Successfully fetched ${tweets.length} tweets for ${subCategory}`);
+      return tweets;
+    }
+
+    // If category is social but no specific account is selected
+    if (category === 'social') {
+      const tweets = await fetchTwitterFeed();
+      console.log(`Successfully fetched ${tweets.length} tweets`);
+      return tweets;
+    }
+
+    // For other categories, fetch both crypto news and tweets
+    const [cryptoNews, twitterNews] = await Promise.all([
+      fetchCryptoNews(),
+      fetchTwitterFeed()
+    ]);
+    
+    const allNews = [...cryptoNews, ...twitterNews];
+    console.log(`Successfully fetched ${allNews.length} articles`);
+
+    // Filter by category if specified
+    if (category && category !== 'all') {
+      return allNews.filter(article => article.category === category);
+    }
+
+    return allNews;
   } catch (error) {
     console.error('Error fetching news:', error);
     console.log('Falling back to sample data');

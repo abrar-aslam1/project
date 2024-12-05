@@ -1,109 +1,80 @@
 import { useState } from 'react';
-import { Header } from './components/Header';
-import { HeroSection } from './components/HeroSection';
 import { CategoryNav } from './components/CategoryNav';
 import { NewsGrid } from './components/NewsGrid';
-import { Footer } from './components/Footer';
-import { categories } from './data/categories';
-import { useNews } from './hooks/useNews';
-import { useDarkMode } from './hooks/useDarkMode';
+import { ThemeToggle } from './components/ThemeToggle';
+import { AuthButton } from './components/AuthButton';
 import { AuthProvider } from './components/AuthProvider';
-import { useAuthContext } from './hooks/useAuthContext';
-import { useAuth } from './hooks/useAuth';
-import { UserPreferencesDialog } from './components/UserPreferencesDialog';
-import { UserPreferences } from './types/news';
-import './App.css';
+import { useDarkMode } from './hooks/useDarkMode';
+import { HeroSection } from './components/HeroSection';
 
-function AppContent() {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activeSubCategory, setActiveSubCategory] = useState('all');
+function App() {
+  const [category, setCategory] = useState('all');
+  const [subCategory, setSubCategory] = useState<string | undefined>();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const { user } = useAuthContext();
-  const { saveUserPreferences } = useAuth();
-  const { news, loading, error } = useNews(activeCategory, activeSubCategory, user?.preferences?.newsPreferences);
-  const [showPreferences, setShowPreferences] = useState(false);
 
-  // Force dark mode class on mount
-  useState(() => {
-    document.documentElement.classList.add('dark');
-  });
-
-  const defaultPreferences: UserPreferences = {
-    newsPreferences: {
-      categories: [],
-      subCategories: []
-    },
-    darkMode: isDarkMode
+  const handleCategoryChange = (newCategory: string, newSubCategory?: string) => {
+    setCategory(newCategory);
+    setSubCategory(newSubCategory);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <Header 
-        isDarkMode={isDarkMode} 
-        onToggleDarkMode={toggleDarkMode}
-        onOpenPreferences={() => setShowPreferences(true)}
-      />
-      
-      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-7xl mx-auto">
-          <HeroSection />
-          
-          <div className="mt-12">
-            <CategoryNav
-              categories={categories}
-              activeCategory={activeCategory}
-              activeSubCategory={activeSubCategory}
-              onCategoryChange={setActiveCategory}
-              onSubCategoryChange={setActiveSubCategory}
-            />
-
-            {error && (
-              <div className="text-red-500 dark:text-red-400 text-center mb-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading latest crypto news...</p>
-              </div>
-            ) : (
-              <div className="mt-8">
-                <NewsGrid articles={news} />
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-
-      <Footer />
-
-      {user && (
-        <UserPreferencesDialog
-          open={showPreferences}
-          onClose={() => setShowPreferences(false)}
-          onSave={async (preferences) => {
-            if (user) {
-              const updatedPreferences: UserPreferences = {
-                ...preferences,
-                darkMode: isDarkMode
-              };
-              await saveUserPreferences(user.uid, updatedPreferences);
-              setShowPreferences(false);
-            }
-          }}
-          initialPreferences={user.preferences || defaultPreferences}
-        />
-      )}
-    </div>
-  );
-}
-
-export default function HomePage() {
-  return (
     <AuthProvider>
-      <AppContent />
+      <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+        {/* Header */}
+        <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/75 dark:bg-gray-950/75 backdrop-blur-sm">
+          <div className="container mx-auto px-4">
+            <div className="flex h-16 items-center justify-between">
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                  Token•eur™
+                </h1>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Crypto News & Tools
+                </span>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex items-center gap-4">
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  News
+                </a>
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Analysis
+                </a>
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Topics
+                </a>
+                <a href="#" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Sources
+                </a>
+              </nav>
+
+              {/* Actions */}
+              <div className="flex items-center gap-4">
+                <ThemeToggle isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
+                <AuthButton />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="container mx-auto px-4 py-8">
+          <div className="space-y-8">
+            {/* Hero Section */}
+            <HeroSection />
+
+            {/* Categories */}
+            <CategoryNav onCategoryChange={handleCategoryChange} />
+
+            {/* News Grid */}
+            <NewsGrid category={category} subCategory={subCategory} />
+          </div>
+        </main>
+      </div>
     </AuthProvider>
   );
 }
+
+export default App;
