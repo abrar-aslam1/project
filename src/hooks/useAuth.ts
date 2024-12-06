@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
   AuthError,
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
   getRedirectResult
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
@@ -25,28 +25,7 @@ export function useAuth() {
     
     const initializeAuth = async () => {
       try {
-        // First check for any redirect result
-        const result = await getRedirectResult(auth).catch(error => {
-          console.error('Redirect result error:', error);
-          console.error('Error code:', error.code);
-          console.error('Error message:', error.message);
-          if (error.customData) {
-            console.error('Custom data:', error.customData);
-          }
-          throw error;
-        });
-
-        if (result?.user) {
-          console.log('Redirect sign-in successful:', result.user.email);
-          // Check for preferences
-          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-          if (!preferences) {
-            setShowPreferences(true);
-            setTempUser(result.user);
-          }
-        }
-
-        // Then set up the auth state listener
+        // Set up the auth state listener
         unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
           if (firebaseUser) {
             console.log('User authenticated:', firebaseUser.email);
@@ -162,9 +141,9 @@ export function useAuth() {
         prompt: 'select_account'
       });
       
-      console.log('Using redirect for sign in');
-      await signInWithRedirect(auth, provider).catch(error => {
-        console.error('Redirect error:', error);
+      console.log('Using popup for sign in');
+      const result = await signInWithPopup(auth, provider).catch(error => {
+        console.error('Popup error:', error);
         console.error('Error code:', error.code);
         console.error('Error message:', error.message);
         if (error.customData) {
@@ -172,7 +151,15 @@ export function useAuth() {
         }
         throw error;
       });
-      // The redirect will reload the page, and the result will be handled in useEffect
+
+      if (result.user) {
+        console.log('Google sign-in successful:', result.user.email);
+        const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+        if (!preferences) {
+          setShowPreferences(true);
+          setTempUser(result.user);
+        }
+      }
     } catch (error: any) {
       handleAuthError(error);
     } finally {
