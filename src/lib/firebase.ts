@@ -28,7 +28,13 @@ let db: ReturnType<typeof getFirestore>;
 // Initialize Firebase if not already initialized
 if (!getApps().length) {
   console.log('Initializing new Firebase app...');
-  app = initializeApp(firebaseConfig);
+  try {
+    app = initializeApp(firebaseConfig);
+    console.log('Firebase app initialized successfully');
+  } catch (error) {
+    console.error('Error initializing Firebase app:', error);
+    throw error;
+  }
 } else {
   console.log('Using existing Firebase app');
   app = getApps()[0];
