@@ -30,6 +30,7 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               <a href="#news" className="text-sm font-medium hover:text-purple-400 transition-colors">News</a>
+              <a href="/callers" className="text-sm font-medium hover:text-purple-400 transition-colors">Callers Hub</a>
               <a href="#tools" className="text-sm font-medium hover:text-purple-400 transition-colors">Tools</a>
               <a href="#merch" className="text-sm font-medium hover:text-purple-400 transition-colors">Merch</a>
               <a href="#exchange" className="text-sm font-medium hover:text-purple-400 transition-colors">Exchange Finder</a>
@@ -69,6 +70,13 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     News
+                  </a>
+                  <a 
+                    href="/callers" 
+                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Callers Hub
                   </a>
                   <a 
                     href="#tools" 

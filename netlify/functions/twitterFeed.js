@@ -26,56 +26,78 @@ export const handler = async function(event, context) {
       accounts_input = body.accounts_input;
     }
 
-    // Make request to the agent.ai API
-    const response = await axios({
-      method: 'POST',
-      url: 'https://api-lr.agent.ai/v1/agent/vqe8j2qer4ci8o0u/webhook/33c0ca2e',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: {
-        accounts_input: accounts_input || '@CryptoWizardd'
+    // Default to CryptoWizardd if no account specified
+    const accountToFetch = accounts_input || '@CryptoWizardd';
+
+    try {
+      // Make request to the agent.ai API
+      const response = await axios({
+        method: 'POST',
+        url: 'https://api-lr.agent.ai/v1/agent/vqe8j2qer4ci8o0u/webhook/33c0ca2e',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          accounts_input: accountToFetch
+        }
+      });
+
+      // Extract tweets from the response
+      const tweets = response.data.response.response;
+
+      if (!Array.isArray(tweets)) {
+        console.error('Invalid response format:', tweets);
+        throw new Error('Invalid response format from Twitter API');
       }
-    });
 
-    // Extract tweets from the response
-    const tweets = response.data.response.response;
+      // Filter out replies and retweets, then transform the tweets
+      const transformedTweets = tweets
+        .filter(tweet => {
+          if (!tweet || !tweet.text) return false;
+          const text = tweet.text.trim();
+          return !text.startsWith('@') && !text.startsWith('RT @'); // Filter out replies and retweets
+        })
+        .map(tweet => ({
+          id: tweet.id,
+          title: tweet.text.split('\n')[0] || tweet.text,
+          description: tweet.text,
+          source: accountToFetch,
+          link: `https://twitter.com/${accountToFetch.replace('@', '')}/status/${tweet.id}`,
+          icon: null,
+          category: 'social',
+          subCategory: accountToFetch,
+          publishedAt: tweet.created_at,
+          isFavorite: false,
+          type: 'tweet',
+          metrics: tweet.public_metrics || {
+            like_count: 0,
+            retweet_count: 0,
+            reply_count: 0,
+            bookmark_count: 0
+          }
+        }));
 
-    // Filter out replies and retweets, then transform the tweets
-    const transformedTweets = tweets
-      .filter(tweet => {
-        const text = tweet.text.trim();
-        return !text.startsWith('@') && !text.startsWith('RT @'); // Filter out replies and retweets
-      })
-      .map(tweet => ({
-        id: tweet.id,
-        title: tweet.text.split('\n')[0] || tweet.text,
-        description: tweet.text,
-        source: 'Twitter',
-        link: `https://twitter.com/${accounts_input?.replace('@', '') || 'CryptoWizardd'}/status/${tweet.id}`,
-        icon: null,
-        category: 'social',
-        subCategory: accounts_input || '@CryptoWizardd',
-        publishedAt: tweet.created_at,
-        isFavorite: false,
-        type: 'tweet',
-        metrics: tweet.public_metrics
-      }));
-
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(transformedTweets)
+      };
+    } catch (apiError) {
+      console.error('API request failed:', apiError);
+      // Return empty array instead of error to prevent UI disruption
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify([])
+      };
+    }
+  } catch (error) {
+    console.error('Error in Twitter handler:', error);
+    // Return empty array instead of error to prevent UI disruption
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(transformedTweets)
-    };
-  } catch (error) {
-    console.error('Error in Twitter handler:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ 
-        error: 'Failed to fetch Twitter feed',
-        details: error.message
-      })
+      body: JSON.stringify([])
     };
   }
 };
