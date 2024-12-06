@@ -5,10 +5,18 @@ import { CallersHub } from './components/CallersHub';
 import { AuthProvider } from './components/AuthProvider';
 import { useDarkMode } from './hooks/useDarkMode';
 import { useState } from 'react';
+import { UserPreferencesDialog } from './components/UserPreferencesDialog';
+import type { UserPreferences } from './types/news';
 
 function App() {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [showPreferences, setShowPreferences] = useState(false);
+
+  const handleSavePreferences = (preferences: UserPreferences) => {
+    // Here you would typically save the preferences to your backend/storage
+    console.log('Saving preferences:', preferences);
+    setShowPreferences(false);
+  };
 
   return (
     <AuthProvider>
@@ -24,6 +32,19 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/callers" element={<CallersHub />} />
           </Routes>
+
+          <UserPreferencesDialog 
+            open={showPreferences}
+            onClose={() => setShowPreferences(false)}
+            onSave={handleSavePreferences}
+            initialPreferences={{
+              darkMode: isDarkMode,
+              newsPreferences: {
+                categories: [],
+                subCategories: []
+              }
+            }}
+          />
         </div>
       </Router>
     </AuthProvider>
