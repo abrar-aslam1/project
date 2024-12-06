@@ -8,8 +8,7 @@ import {
   onAuthStateChanged,
   AuthError,
   GoogleAuthProvider,
-  signInWithPopup,
-  getRedirectResult
+  signInWithPopup
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
