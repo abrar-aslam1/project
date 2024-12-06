@@ -125,7 +125,7 @@ export function useAuth() {
     } else if (error.code === 'auth/cancelled-popup-request') {
       errorMessage = 'Only one sign-in window can be open at a time.';
     } else if (error.code === 'auth/unauthorized-domain') {
-      errorMessage = 'This domain is not authorized for Google sign-in. Please contact support.';
+      errorMessage = `To use Google sign-in in development, you need to add "localhost:5174" (including the port number) to the authorized domains in Firebase Console:\n1. Go to Firebase Console\n2. Select your project\n3. Go to Authentication > Settings > Authorized domains\n4. Click "Add domain"\n5. Add "localhost:5174" (not just "localhost")`;
     }
 
     throw new Error(errorMessage);
@@ -141,6 +141,7 @@ export function useAuth() {
       });
       
       console.log('Using popup for sign in');
+      console.log('Current origin:', window.location.origin);
       const result = await signInWithPopup(auth, provider).catch(error => {
         console.error('Popup error:', error);
         console.error('Error code:', error.code);

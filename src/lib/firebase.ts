@@ -29,6 +29,13 @@ let db: ReturnType<typeof getFirestore>;
 if (!getApps().length) {
   console.log('Initializing new Firebase app...');
   try {
+    // Log the current URL for debugging
+    console.log('Current URL:', window.location.origin);
+    console.log('Firebase config:', {
+      ...firebaseConfig,
+      apiKey: '***' // Hide API key in logs
+    });
+    
     app = initializeApp(firebaseConfig);
     console.log('Firebase app initialized successfully');
   } catch (error) {
