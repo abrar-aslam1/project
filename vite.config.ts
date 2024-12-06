@@ -11,8 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    open: true,
+    port: 5173,
     host: true,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
@@ -20,14 +19,8 @@ export default defineConfig({
     }
   },
   preview: {
-    viewport: {
-      width: 375, // iPhone viewport width
-      height: 667, // iPhone viewport height
-      deviceScaleFactor: 2,
-      isMobile: true,
-      hasTouch: true,
-      isLandscape: false
-    }
+    port: 5173,
+    host: true
   },
   build: {
     outDir: 'dist',

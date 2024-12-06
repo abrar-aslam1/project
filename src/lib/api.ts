@@ -1,19 +1,20 @@
 import { NewsArticle } from '../types/news';
 import { sampleNews } from '../data/sampleNews';
 
-const API_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
-const API_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:8888/.netlify/functions'
+  : '/.netlify/functions';
 
 export async function fetchTwitterFeed(account?: string): Promise<NewsArticle[]> {
   try {
     console.log('Fetching tweets for account:', account);
-    const response = await fetch('http://localhost:3002/api/twitter', {
+    const response = await fetch(`${API_BASE_URL}/twitterFeed`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        accounts_input: account // If no account is provided, the server will randomly select one
+        accounts_input: account // If no account is provided, the function will use default
       })
     });
 
@@ -32,13 +33,7 @@ export async function fetchTwitterFeed(account?: string): Promise<NewsArticle[]>
 
 export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   try {
-    const response = await fetch('https://crypto-news16.p.rapidapi.com/news/top/50', {
-      method: 'GET',
-      headers: {
-        'X-RapidAPI-Key': API_KEY,
-        'X-RapidAPI-Host': API_HOST
-      }
-    });
+    const response = await fetch(`${API_BASE_URL}/cryptoNews`);
 
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
@@ -49,18 +44,18 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
     // Transform API response to match our NewsArticle type
     const articles: NewsArticle[] = data.map((item: any, index: number) => {
       // Extract category and subcategory from title/description
-      const categoryInfo = getCategoryInfo(item.title, item.description);
+      const categoryInfo = getCategoryInfo(item.title, item.description || '');
       
       return {
         id: index.toString(),
         title: item.title,
-        description: item.description,
+        description: item.description || item.title,
         source: item.source || 'Crypto News',
         link: item.url,
         icon: getIconForCategory(),
         category: categoryInfo.category,
         subCategory: categoryInfo.subCategory,
-        publishedAt: new Date().toISOString(), // API doesn't provide date
+        publishedAt: item.date || new Date().toISOString(),
         isFavorite: false,
         type: 'article'
       };
