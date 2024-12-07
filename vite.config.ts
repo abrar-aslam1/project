@@ -20,14 +20,8 @@ export default defineConfig({
     }
   },
   preview: {
-    viewport: {
-      width: 375, // iPhone viewport width
-      height: 667, // iPhone viewport height
-      deviceScaleFactor: 2,
-      isMobile: true,
-      hasTouch: true,
-      isLandscape: false
-    }
+    port: 3000,
+    open: true
   },
   build: {
     outDir: 'dist',

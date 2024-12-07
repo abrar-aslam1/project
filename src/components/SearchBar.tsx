@@ -1,5 +1,5 @@
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Input } from '../components/ui/input';
 
 interface SearchBarProps {
   value: string;
@@ -16,7 +16,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         type="text"
         placeholder="Search crypto news..."
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         className="pl-10 w-full bg-white dark:bg-gray-800"
       />
     </div>
