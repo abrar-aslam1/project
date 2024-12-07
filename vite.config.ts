@@ -11,8 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    open: true,
+    port: 5173,
     host: true,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
@@ -20,8 +19,13 @@ export default defineConfig({
     }
   },
   preview: {
+<<<<<<< HEAD
     port: 3000,
     open: true
+=======
+    port: 5173,
+    host: true
+>>>>>>> 3d82c12a573c0294310c4492a1e825bb58fdeea5
   },
   build: {
     outDir: 'dist',

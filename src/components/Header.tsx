@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthButton } from './AuthButton';
 import { ThemeToggle } from './ThemeToggle';
 import { Button } from './ui/button';
@@ -21,18 +22,19 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
       <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
-            <div className="text-left">
+            <Link to="/" className="text-left">
               <h1 className="text-2xl font-bold gradient-text">
                 Tokeneur<span className="text-xs align-super">™</span>
               </h1>
               <div className="text-sm text-purple-400 mt-0.5 text-left">Crypto News & Tools</div>
-            </div>
+            </Link>
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#news" className="text-sm font-medium hover:text-purple-400 transition-colors">News</a>
-              <a href="#tools" className="text-sm font-medium hover:text-purple-400 transition-colors">Tools</a>
-              <a href="#merch" className="text-sm font-medium hover:text-purple-400 transition-colors">Merch</a>
-              <a href="#exchange" className="text-sm font-medium hover:text-purple-400 transition-colors">Exchange Finder</a>
+              <Link to="/" className="text-sm font-medium hover:text-purple-400 transition-colors">News</Link>
+              <Link to="/callers" className="text-sm font-medium hover:text-purple-400 transition-colors">Callers Hub</Link>
+              <Link to="/tools" className="text-sm font-medium hover:text-purple-400 transition-colors">Tools</Link>
+              <Link to="/merch" className="text-sm font-medium hover:text-purple-400 transition-colors">Merch</Link>
+              <Link to="/exchange" className="text-sm font-medium hover:text-purple-400 transition-colors">Exchange Finder</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -63,34 +65,41 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col gap-4 mt-8">
-                  <a 
-                    href="#news" 
+                  <Link 
+                    to="/" 
                     className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     News
-                  </a>
-                  <a 
-                    href="#tools" 
+                  </Link>
+                  <Link 
+                    to="/callers" 
+                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Callers Hub
+                  </Link>
+                  <Link 
+                    to="/tools" 
                     className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tools
-                  </a>
-                  <a 
-                    href="#merch" 
+                  </Link>
+                  <Link 
+                    to="/merch" 
                     className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Merch
-                  </a>
-                  <a 
-                    href="#exchange" 
+                  </Link>
+                  <Link 
+                    to="/exchange" 
                     className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Exchange Finder
-                  </a>
+                  </Link>
                   <div className="mt-4 p-2">
                     <AuthButton />
                   </div>

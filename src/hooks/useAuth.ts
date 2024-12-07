@@ -8,8 +8,7 @@ import {
   onAuthStateChanged,
   AuthError,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult
+  signInWithPopup
 } from 'firebase/auth';
 import { auth, saveUserPreferencesToFirestore, getUserPreferencesFromFirestore } from '../lib/firebase';
 import { User, UserPreferences } from '../types/news';
@@ -25,19 +24,7 @@ export function useAuth() {
     
     const initializeAuth = async () => {
       try {
-        // First check for any redirect result
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          console.log('Redirect sign-in successful:', result.user.email);
-          // Check for preferences
-          const preferences = await getUserPreferencesFromFirestore(result.user.uid);
-          if (!preferences) {
-            setShowPreferences(true);
-            setTempUser(result.user);
-          }
-        }
-
-        // Then set up the auth state listener
+        // Set up the auth state listener
         unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
           if (firebaseUser) {
             console.log('User authenticated:', firebaseUser.email);
@@ -109,6 +96,12 @@ export function useAuth() {
 
   const handleAuthError = (error: AuthError) => {
     console.error('Authentication error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    if (error.customData) {
+      console.error('Custom data:', error.customData);
+    }
+    
     let errorMessage = 'An error occurred. Please try again.';
     
     if (!navigator.onLine) {
@@ -125,6 +118,14 @@ export function useAuth() {
       errorMessage = 'Incorrect password.';
     } else if (error.code === 'auth/too-many-requests') {
       errorMessage = 'Too many attempts. Please try again later.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      errorMessage = 'Sign-in window was closed. Please try again.';
+    } else if (error.code === 'auth/popup-blocked') {
+      errorMessage = 'Sign-in popup was blocked by your browser. Please allow popups for this site.';
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      errorMessage = 'Only one sign-in window can be open at a time.';
+    } else if (error.code === 'auth/unauthorized-domain') {
+      errorMessage = `To use Google sign-in in development, you need to add "localhost:5174" (including the port number) to the authorized domains in Firebase Console:\n1. Go to Firebase Console\n2. Select your project\n3. Go to Authentication > Settings > Authorized domains\n4. Click "Add domain"\n5. Add "localhost:5174" (not just "localhost")`;
     }
 
     throw new Error(errorMessage);
@@ -139,9 +140,26 @@ export function useAuth() {
         prompt: 'select_account'
       });
       
-      console.log('Using redirect for sign in');
-      await signInWithRedirect(auth, provider);
-      // The redirect will reload the page, and the result will be handled in useEffect
+      console.log('Using popup for sign in');
+      console.log('Current origin:', window.location.origin);
+      const result = await signInWithPopup(auth, provider).catch(error => {
+        console.error('Popup error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        if (error.customData) {
+          console.error('Custom data:', error.customData);
+        }
+        throw error;
+      });
+
+      if (result.user) {
+        console.log('Google sign-in successful:', result.user.email);
+        const preferences = await getUserPreferencesFromFirestore(result.user.uid);
+        if (!preferences) {
+          setShowPreferences(true);
+          setTempUser(result.user);
+        }
+      }
     } catch (error: any) {
       handleAuthError(error);
     } finally {
