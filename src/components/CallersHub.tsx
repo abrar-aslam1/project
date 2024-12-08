@@ -45,7 +45,7 @@ export function CallersHub() {
   const [selectedCaller, setSelectedCaller] = useState<string | null>(null);
 
   // Use the cached Twitter feed
-  const { data: tweets = [], isLoading: isFetchingTweets } = useTwitterFeed(selectedCaller);
+  const { data: tweets = [], isLoading: isFetchingTweets, isFetching } = useTwitterFeed(selectedCaller);
 
   const handleCallerClick = (handle: string) => {
     setSelectedCaller(selectedCaller === handle ? null : handle);
@@ -187,67 +187,74 @@ export function CallersHub() {
     </div>
   );
 
-  const CallerCard = ({ caller }: { caller: Caller }) => (
-    <div className="space-y-4">
-      <HoverCard>
-        <HoverCardTrigger asChild>
-          <button
-            onClick={() => handleCallerClick(caller.handle)}
-            className={`w-full group flex ${viewMode === 'list' ? 'flex-row items-center justify-between' : 'flex-col'} 
-              p-4 rounded-lg transition-all
-              bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-              hover:border-purple-300 dark:hover:border-purple-700
-              hover:shadow-md`}
-          >
-            <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
-              <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                <span>{caller.followers} followers</span>
-                <span className="text-green-500">{caller.performance}</span>
+  const CallerCard = ({ caller }: { caller: Caller }) => {
+    const isSelected = selectedCaller === caller.handle;
+    const isLoading = isSelected && (isFetchingTweets || isFetching);
+
+    return (
+      <div className="space-y-4">
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <button
+              onClick={() => handleCallerClick(caller.handle)}
+              className={`w-full group flex ${viewMode === 'list' ? 'flex-row items-center justify-between' : 'flex-col'} 
+                p-4 rounded-lg transition-all
+                bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                hover:border-purple-300 dark:hover:border-purple-700
+                hover:shadow-md
+                ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
+              disabled={isLoading}
+            >
+              <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
+                <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <span>{caller.followers} followers</span>
+                  <span className="text-green-500">{caller.performance}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {isSelected ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </div>
+            </button>
+          </HoverCardTrigger>
+          <HoverCardContent className="w-80">
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold">{caller.handle}</h4>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                <p>Accuracy Rate: {caller.accuracy}</p>
+                <p>Specialties: {caller.specialties.join(', ')}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              {selectedCaller === caller.handle ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </div>
-          </button>
-        </HoverCardTrigger>
-        <HoverCardContent className="w-80">
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold">{caller.handle}</h4>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              <p>Accuracy Rate: {caller.accuracy}</p>
-              <p>Specialties: {caller.specialties.join(', ')}</p>
-            </div>
-          </div>
-        </HoverCardContent>
-      </HoverCard>
+          </HoverCardContent>
+        </HoverCard>
 
-      {selectedCaller === caller.handle && (
-        <div className="pl-4 border-l-2 border-purple-600 dark:border-purple-400 space-y-4">
-          {isFetchingTweets ? (
-            <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-            </div>
-          ) : tweets.length > 0 ? (
-            <div className="space-y-4">
-              {tweets.map((tweet) => (
-                <TweetCard key={tweet.id} tweet={tweet} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No tweets available</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
+        {isSelected && (
+          <div className="pl-4 border-l-2 border-purple-600 dark:border-purple-400 space-y-4">
+            {isLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            ) : tweets.length > 0 ? (
+              <div className="space-y-4">
+                {tweets.map((tweet) => (
+                  <TweetCard key={tweet.id} tweet={tweet} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No tweets available</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -298,39 +305,35 @@ export function CallersHub() {
             <TabsTrigger value="alpha">Alpha Hunters</TabsTrigger>
           </TabsList>
 
-          {isFetchingTweets ? (
-            <LoadingSkeleton />
-          ) : (
-            <>
-              <TabsContent value="all">
-                <div className={viewMode === 'grid' ? 'grid gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
-                  {filteredGroups.map(group => (
-                    <div key={group.title} className="space-y-4">
-                      <div className="flex items-center gap-2 mt-6">
-                        {group.icon}
-                        <h3 className="text-lg font-semibold">{group.title}</h3>
-                      </div>
-                      <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-2'}>
-                        {group.callers.map(caller => (
-                          <CallerCard key={caller.handle} caller={caller} />
-                        ))}
-                      </div>
+          <>
+            <TabsContent value="all">
+              <div className={viewMode === 'grid' ? 'grid gap-6 md:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
+                {filteredGroups.map(group => (
+                  <div key={group.title} className="space-y-4">
+                    <div className="flex items-center gap-2 mt-6">
+                      {group.icon}
+                      <h3 className="text-lg font-semibold">{group.title}</h3>
                     </div>
+                    <div className={viewMode === 'grid' ? 'grid gap-4' : 'space-y-2'}>
+                      {group.callers.map(caller => (
+                        <CallerCard key={caller.handle} caller={caller} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+
+            {['top', 'technical', 'alpha'].map((tab, index) => (
+              <TabsContent key={tab} value={tab}>
+                <div className={viewMode === 'grid' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
+                  {filteredGroups[index]?.callers.map(caller => (
+                    <CallerCard key={caller.handle} caller={caller} />
                   ))}
                 </div>
               </TabsContent>
-
-              {['top', 'technical', 'alpha'].map((tab, index) => (
-                <TabsContent key={tab} value={tab}>
-                  <div className={viewMode === 'grid' ? 'grid gap-4 md:grid-cols-2 lg:grid-cols-3' : 'space-y-2'}>
-                    {filteredGroups[index]?.callers.map(caller => (
-                      <CallerCard key={caller.handle} caller={caller} />
-                    ))}
-                  </div>
-                </TabsContent>
-              ))}
-            </>
-          )}
+            ))}
+          </>
         </Tabs>
       </div>
     </div>
