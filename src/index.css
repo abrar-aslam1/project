@@ -1,15 +1,21 @@
+/* Optimize font loading with font-display: swap */
 @font-face {
   font-family: 'Diaria Pro';
   src: url('/fonts/diariapro-regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
+  /* Add preload hint */
+  /* <link rel="preload" href="/fonts/diariapro-regular.otf" as="font" type="font/otf" crossorigin> */
 }
 
+/* Load other weights asynchronously */
 @font-face {
   font-family: 'Diaria Pro';
   src: url('/fonts/diariapro-medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -17,6 +23,7 @@
   src: url('/fonts/diariapro-semibold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -24,6 +31,7 @@
   src: url('/fonts/diariapro-bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -31,6 +39,7 @@
   src: url('/fonts/diariapro-extrabold.otf') format('opentype');
   font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
 
 @tailwind base;
@@ -91,7 +100,21 @@
   body {
     @apply bg-background text-foreground transition-colors duration-200;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: 'Diaria Pro', sans-serif;
+    font-family: 'Diaria Pro', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Responsive utilities */
+@layer utilities {
+  .safe-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
@@ -114,4 +137,15 @@
 /* Theme transition utilities */
 .theme-transition {
   @apply transition-all duration-200;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .glass-effect {
+    @apply backdrop-blur-md; /* Reduce blur on mobile for better performance */
+  }
+  
+  .card-hover {
+    @apply hover:scale-100; /* Disable scaling on mobile */
+  }
 }

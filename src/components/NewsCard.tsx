@@ -2,12 +2,14 @@ import { NewsArticle } from '../types/news';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { ExternalLink, Heart, MessageCircle, Repeat, Bookmark } from 'lucide-react';
+import { memo, useMemo } from 'react';
 
 interface NewsCardProps {
   article: NewsArticle;
 }
 
-export function NewsCard({ article }: NewsCardProps) {
+// Memoize the card to prevent unnecessary re-renders
+export const NewsCard = memo(function NewsCard({ article }: NewsCardProps) {
   const { user } = useAuthContext();
   const { 
     title, 
@@ -32,8 +34,8 @@ export function NewsCard({ article }: NewsCardProps) {
     }
   }
 
-  // Function to clean and format the text
-  const formatText = (text: string) => {
+  // Memoize text formatting functions to prevent unnecessary recalculations
+  const formatText = useMemo(() => (text: string) => {
     // Remove HTML tags but preserve line breaks
     let formattedText = text
       .replace(/<p>/g, '')
@@ -46,10 +48,10 @@ export function NewsCard({ article }: NewsCardProps) {
     formattedText = formattedText.replace(/\s*https:\/\/t\.co\/\w+\s*$/g, '');
 
     return formattedText;
-  };
+  }, []);
 
-  // Function to format numbers (e.g., 1000 -> 1K)
-  const formatNumber = (num: number): string => {
+  // Memoize number formatting
+  const formatNumber = useMemo(() => (num: number): string => {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';
     }
@@ -57,18 +59,20 @@ export function NewsCard({ article }: NewsCardProps) {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
-  };
+  }, []);
 
-  // Get the formatted title and description
-  const formattedTitle = formatText(title);
-  const formattedDescription = formatText(description);
+  // Memoize formatted text to prevent recalculation on re-renders
+  const formattedTitle = useMemo(() => formatText(title), [title, formatText]);
+  const formattedDescription = useMemo(() => formatText(description), [description, formatText]);
 
   // For tweets that are just URLs, show a more user-friendly title
   const displayTitle = formattedTitle || 'View Tweet Content';
   const shouldShowDescription = formattedDescription && formattedDescription !== displayTitle;
 
   return (
-    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700 bg-white dark:bg-gray-900">
+    <Card 
+      className="overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transform-gpu will-change-transform hover:shadow-lg hover:shadow-purple-500/10 transition-shadow duration-300 motion-reduce:transform-none motion-reduce:transition-none"
+    >
       <CardHeader className="space-y-3 pb-4 px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <div className="text-purple-600 dark:text-purple-400 flex-shrink-0">
@@ -95,9 +99,11 @@ export function NewsCard({ article }: NewsCardProps) {
               <span className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
                 {category}
               </span>
-              <span className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                {subCategory}
-              </span>
+              {subCategory && (
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                  {subCategory}
+                </span>
+              )}
             </div>
           </div>
           
@@ -136,4 +142,4 @@ export function NewsCard({ article }: NewsCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
