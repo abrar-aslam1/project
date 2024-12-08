@@ -40,7 +40,6 @@ interface Caller {
 }
 
 export function CallersHub() {
-  const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCaller, setSelectedCaller] = useState<string | null>(null);
@@ -299,7 +298,7 @@ export function CallersHub() {
             <TabsTrigger value="alpha">Alpha Hunters</TabsTrigger>
           </TabsList>
 
-          {isLoading ? (
+          {isFetchingTweets ? (
             <LoadingSkeleton />
           ) : (
             <>
