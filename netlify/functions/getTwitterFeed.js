@@ -1,11 +1,43 @@
-const axios = require('axios');
+import axios from 'axios';
 
-exports.handler = async (event, context) => {
+const handler = async (event, context) => {
+  // Define allowed origins
+  const allowedOrigins = [
+    'http://localhost:5173',  // Vite dev server default
+    'http://localhost:5174',  // Vite alternate port
+    'http://localhost:5175',  // Vite alternate port
+    'https://project-bolt-sb1-ep1jvx.netlify.app'  // Your Netlify deployed site
+  ];
+
+  // Get the requesting origin
+  const origin = event.headers.origin || event.headers.Origin;
+
+  // Set CORS headers based on the requesting origin
+  const headers = {
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
+
+  // Only allow specific origins
+  if (allowedOrigins.includes(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+  }
+
+  // Handle preflight request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
   try {
     // Only allow POST requests
     if (event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
+        headers,
         body: JSON.stringify({ error: 'Method not allowed' }),
       };
     }
@@ -66,12 +98,7 @@ exports.handler = async (event, context) => {
     // Return the transformed tweets
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
+      headers,
       body: JSON.stringify(transformedTweets)
     };
 
@@ -79,12 +106,7 @@ exports.handler = async (event, context) => {
     console.error('Error in Twitter handler:', error);
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
+      headers,
       body: JSON.stringify({ 
         error: 'Internal server error',
         details: error.message
@@ -92,3 +114,5 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+export { handler };

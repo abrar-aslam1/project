@@ -4,20 +4,25 @@
   functions = "netlify/functions"
 
 [dev]
-  command = "vite"
-  port = 8888
+  command = "npm run dev"
+  port = 9000
   targetPort = 5173
   publish = "dist"
-  framework = "vite"
-  autoLaunch = true
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self' https://api-lr.agent.ai; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api-lr.agent.ai;"
+
 [functions]
   node_bundler = "esbuild"
-
-[build.environment]
-  NODE_VERSION = "18"
