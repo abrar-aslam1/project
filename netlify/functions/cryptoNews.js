@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export const handler = async function(event, context) {
   // Enable CORS
@@ -18,31 +18,42 @@ export const handler = async function(event, context) {
   }
 
   try {
-    const response = await fetch('https://crypto-news-live9.p.rapidapi.com/news', {
-      method: 'GET',
-      headers: {
-        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-        'X-RapidAPI-Host': 'crypto-news-live9.p.rapidapi.com'
-      }
-    });
+    console.log('Attempting to fetch crypto news...');
+    const apiKey = process.env.RAPIDAPI_KEY || process.env.VITE_RAPIDAPI_KEY;
+    const apiHost = process.env.RAPIDAPI_HOST || process.env.VITE_RAPIDAPI_HOST;
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+    if (!apiKey || !apiHost) {
+      console.error('Missing API credentials:', { apiKey: !!apiKey, apiHost: !!apiHost });
+      throw new Error('Missing API credentials');
     }
 
-    const data = await response.json();
+    const options = {
+      method: 'GET',
+      url: 'https://crypto-news16.p.rapidapi.com/news/top/5',
+      headers: {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': apiHost
+      }
+    };
+
+    const response = await axios.request(options);
+    console.log('Successfully fetched news data');
     
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(response.data)
     };
   } catch (error) {
-    console.error('Error fetching crypto news:', error);
+    console.error('Error in cryptoNews function:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed to fetch crypto news' })
+      body: JSON.stringify({ 
+        error: 'Failed to fetch crypto news', 
+        details: error.message,
+        timestamp: new Date().toISOString()
+      })
     };
   }
 };

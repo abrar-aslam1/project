@@ -122,7 +122,11 @@ export async function fetchTwitterFeed(account?: string): Promise<NewsArticle[]>
 
 export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get('/api/getCryptoNews');
+    const response = await axios.get(`${API_BASE_URL}/cryptoNews`);
+
+    if (!response.data) {
+      throw new Error('No data received from crypto news API');
+    }
 
     return response.data.map((item: any) => {
       const { category, subCategory } = categorizeNews(item.title);
