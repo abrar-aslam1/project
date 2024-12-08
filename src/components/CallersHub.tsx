@@ -1,8 +1,9 @@
-import { Users, Star, TrendingUp, ChartBar, Search, Grid, List, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { Users, Star, TrendingUp, ChartBar, Search, Grid, List, ExternalLink, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Input } from "./ui/input";
 import { Toggle } from "./ui/toggle";
+import { Progress } from "./ui/progress";
 import {
   HoverCard,
   HoverCardContent,
@@ -10,6 +11,8 @@ import {
 } from "./ui/hover-card";
 import { Skeleton } from "./ui/skeleton";
 import { useTwitterFeed } from '../hooks/useTwitterFeed';
+import { useQueryClient } from '@tanstack/react-query';
+import { getApiBaseUrl } from '../lib/config';
 
 interface Tweet {
   id: string;
@@ -39,17 +42,34 @@ interface Caller {
   specialties: string[];
 }
 
+// Function to fetch tweets for a handle
+const fetchTwitterFeed = async (handle: string): Promise<Tweet[]> => {
+  const baseUrl = getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/.netlify/functions/getTwitterFeed`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ accounts_input: handle }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch tweets');
+  }
+
+  return response.json();
+};
+
 export function CallersHub() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCaller, setSelectedCaller] = useState<string | null>(null);
+  const [isPrefetching, setIsPrefetching] = useState(true);
+  const [prefetchProgress, setPrefetchProgress] = useState(0);
+  const queryClient = useQueryClient();
 
   // Use the cached Twitter feed
   const { data: tweets = [], isLoading: isFetchingTweets, isFetching } = useTwitterFeed(selectedCaller);
-
-  const handleCallerClick = (handle: string) => {
-    setSelectedCaller(selectedCaller === handle ? null : handle);
-  };
 
   // Enhanced caller data
   const callerGroups: CallerGroup[] = [
@@ -139,6 +159,38 @@ export function CallersHub() {
     }
   ];
 
+  // Prefetch tweets for all callers when component mounts
+  useEffect(() => {
+    const prefetchTweets = async () => {
+      try {
+        const allCallers = callerGroups.flatMap(group => group.callers.map(caller => caller.handle));
+        const totalCallers = allCallers.length;
+        let completedPrefetches = 0;
+
+        await Promise.all(allCallers.map(async handle => {
+          await queryClient.prefetchQuery({
+            queryKey: ['twitter-feed', handle],
+            queryFn: () => fetchTwitterFeed(handle),
+            staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
+            gcTime: 30 * 60 * 1000, // Keep data in garbage collection for 30 minutes
+          });
+          completedPrefetches++;
+          setPrefetchProgress(Math.round((completedPrefetches / totalCallers) * 100));
+        }));
+      } catch (error) {
+        console.error('Error prefetching tweets:', error);
+      } finally {
+        setIsPrefetching(false);
+      }
+    };
+
+    prefetchTweets();
+  }, [queryClient]);
+
+  const handleCallerClick = (handle: string) => {
+    setSelectedCaller(selectedCaller === handle ? null : handle);
+  };
+
   const filteredGroups = callerGroups.map(group => ({
     ...group,
     callers: group.callers.filter(caller =>
@@ -189,7 +241,7 @@ export function CallersHub() {
                 hover:border-purple-300 dark:hover:border-purple-700
                 hover:shadow-md
                 ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
-              disabled={isLoading}
+              disabled={isLoading || isPrefetching}
             >
               <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
                 <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
@@ -253,6 +305,16 @@ export function CallersHub() {
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Follow top crypto callers and their latest market insights. Track their calls, analysis, and trading strategies in real-time.
           </p>
+          {isPrefetching && (
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading tweets for all callers...</span>
+                <span className="font-medium">{prefetchProgress}%</span>
+              </div>
+              <Progress value={prefetchProgress} className="h-1" />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between gap-4">

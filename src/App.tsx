@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const Home = lazy(() => import('./components/Home').then(module => ({ default: module.Home })));
 const CallersHub = lazy(() => import('./components/CallersHub').then(module => ({ default: module.CallersHub })));
 const Tools = lazy(() => import('./components/Tools'));
+const Community = lazy(() => import('./components/Community'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,6 +82,7 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/callers" element={<CallersHub />} />
                   <Route path="/tools" element={<Tools />} />
+                  <Route path="/community" element={<Community />} />
                 </Routes>
               </Suspense>
             </main>
