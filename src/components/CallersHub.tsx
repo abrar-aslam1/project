@@ -149,20 +149,6 @@ export function CallersHub() {
     )
   })).filter(group => group.callers.length > 0);
 
-  const LoadingSkeleton = () => (
-    <div className="space-y-4">
-      <Skeleton className="h-12 w-full" />
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="space-y-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-20 w-full" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
   const TweetCard = ({ tweet }: { tweet: Tweet }) => (
     <div className="p-4 rounded-lg bg-white/5 border border-gray-800 space-y-2">
       <p className="text-sm text-gray-300">{tweet.description}</p>

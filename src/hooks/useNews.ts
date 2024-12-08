@@ -1,4 +1,4 @@
-import { NewsArticle, NewsPreferences } from '../types/news';
+import { NewsPreferences } from '../types/news';
 import { fetchAllNews } from '../lib/api';
 import { sampleNews } from '../data/sampleNews';
 import { useQuery } from '@tanstack/react-query';
