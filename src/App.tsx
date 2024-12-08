@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { UserPreferencesDialog } from './components/UserPreferencesDialog';
 import type { UserPreferences } from './types/news';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Tools from './components/Tools';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/callers" element={<CallersHub />} />
+              <Route path="/tools" element={<Tools />} />
             </Routes>
 
             <UserPreferencesDialog 
