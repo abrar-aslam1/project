@@ -149,40 +149,33 @@ export async function fetchCryptoNews(): Promise<NewsArticle[]> {
   }
 }
 
-// Fetch all news (combining crypto news and Twitter feed)
+// Fetch all news (now separating crypto news and Twitter feed)
 export async function fetchAllNews(category?: string, subCategory?: string): Promise<NewsArticle[]> {
   try {
     console.log('Fetching news...', { category, subCategory });
 
-    // If category is social and a subcategory (Twitter account) is specified
-    if (category === 'social' && subCategory && subCategory.startsWith('@')) {
-      const tweets = await fetchTwitterFeed(subCategory);
-      console.log(`Successfully fetched ${tweets.length} tweets for ${subCategory}`);
-      return tweets;
-    }
-
-    // If category is social but no specific account is selected
+    // If category is social, only fetch tweets
     if (category === 'social') {
+      if (subCategory && subCategory.startsWith('@')) {
+        const tweets = await fetchTwitterFeed(subCategory);
+        console.log(`Successfully fetched ${tweets.length} tweets for ${subCategory}`);
+        return tweets;
+      }
       const tweets = await fetchTwitterFeed();
       console.log(`Successfully fetched ${tweets.length} tweets`);
       return tweets;
     }
 
-    // For other categories, fetch both crypto news and tweets
-    const [cryptoNews, twitterNews] = await Promise.all([
-      fetchCryptoNews(),
-      fetchTwitterFeed()
-    ]);
-    
-    const allNews = [...cryptoNews, ...twitterNews];
-    console.log(`Successfully fetched ${allNews.length} articles`);
+    // For all other categories, only fetch crypto news
+    const cryptoNews = await fetchCryptoNews();
+    console.log(`Successfully fetched ${cryptoNews.length} articles`);
 
     // Filter by category if specified
     if (category && category !== 'all') {
-      return allNews.filter(article => article.category === category);
+      return cryptoNews.filter(article => article.category === category);
     }
 
-    return allNews;
+    return cryptoNews;
   } catch (error) {
     console.error('Error fetching news:', error);
     console.log('Falling back to sample data');
