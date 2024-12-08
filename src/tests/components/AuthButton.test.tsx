@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { AuthButton } from '@/components/AuthButton';
-import { useAuth } from '@/hooks/useAuth';
+import { AuthButton } from '../../components/AuthButton';
+import { useAuth } from '../../hooks/useAuth';
 import { vi } from 'vitest';
 
-vi.mock('@/hooks/useAuth');
+vi.mock('../../hooks/useAuth');
 
 describe('AuthButton', () => {
   beforeEach(() => {

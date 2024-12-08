@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useNews } from '@/hooks/useNews';
+import { useNews } from '../../hooks/useNews';
 
 describe('useNews', () => {
   it('returns filtered news based on category and subcategory', async () => {

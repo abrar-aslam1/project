@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import axios from 'axios';
-import { fetchCryptoNews } from '@/lib/api';
+import { fetchCryptoNews } from '../../lib/api';
 
 vi.mock('axios');
 

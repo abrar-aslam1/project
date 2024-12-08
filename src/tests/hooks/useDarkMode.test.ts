@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { useDarkMode } from '../../hooks/useDarkMode';
 
 describe('useDarkMode', () => {
   it('toggles dark mode correctly', () => {
