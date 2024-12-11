@@ -1,5 +1,4 @@
 import { Card, CardContent } from "./ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
 export function HeroSection() {
   return (
@@ -21,45 +20,37 @@ export function HeroSection() {
           </div>
 
           <ol className="list-decimal ml-5 mb-4 text-black dark:text-white text-sm sm:text-base space-y-1.5 drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 400 }}>
-            <li className="pl-1">An entrepreneur in the frontier of crypto, blockchain, & decentralized tokenization</li>
-            <li className="pl-1">A pioneer forging the future, squares are too blind to know they're desperate for</li>
-            <li className="pl-1">A diamond handed CHAD fully in it for the tech & the $money</li>
+            <li className="pl-1">An entrepreneur on the frontier of crypto, blockchain, & decentralized tokenization</li>
+            <li className="pl-1">A GigChad all the way in for the tech & the $money</li>
           </ol>
 
-          <Accordion type="single" collapsible className="text-black dark:text-white">
-            <AccordionItem value="more-info" className="border-blue-300/30">
-              <AccordionTrigger className="text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 600 }}>More Details</AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="mb-1.5">
-                      <span className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 uppercase tracking-wider drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 600 }}>USAGE</span>
-                    </div>
-                    <div className="ml-5 mb-4 text-black dark:text-white text-sm sm:text-base space-y-1.5 drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 400 }}>
-                      <p className="italic">"In the realm of decentralized finance and Web3"</p>
-                      <p className="italic">"On the frontier of blockchain innovation and digital assets"</p>
-                    </div>
-                  </div>
+          <div className="space-y-4">
+            <div>
+              <div className="mb-1.5">
+                <span className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 uppercase tracking-wider drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 600 }}>USAGE</span>
+              </div>
+              <div className="ml-5 mb-4 text-black dark:text-white text-sm sm:text-base drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 400 }}>
+                <p className="italic">"A real tokeneur locks on with laser eyes and diamond hands when the FUD breaks"</p>
+              </div>
+            </div>
 
-                  <div>
-                    <div className="mb-1.5">
-                      <span className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 uppercase tracking-wider drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 600 }}>SIMILAR</span>
-                    </div>
-                    <div className="ml-5 text-black dark:text-white text-sm sm:text-base drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 400 }}>
-                      <p>
-                        <span className="text-blue-600 dark:text-blue-300">Crypto Native</span> • 
-                        <span className="text-blue-600 dark:text-blue-300"> DeFi Degen</span> • 
-                        <span className="text-blue-600 dark:text-blue-300"> Web3 Builder</span> • 
-                        <span className="text-blue-600 dark:text-blue-300"> Chain Maximalist</span> • 
-                        <span className="text-blue-600 dark:text-blue-300"> NFT Collector</span> • 
-                        <span className="text-blue-600 dark:text-blue-300"> Yield Farmer</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+            <div>
+              <div className="mb-1.5">
+                <span className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 uppercase tracking-wider drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 600 }}>SIMILAR</span>
+              </div>
+              <div className="ml-5 text-black dark:text-white text-sm sm:text-base drop-shadow-sm" style={{ fontFamily: 'Diaria Pro', fontWeight: 400 }}>
+                <p>
+                  <span className="text-blue-600 dark:text-blue-300">Chadus Maximus</span> • 
+                  <span className="text-blue-600 dark:text-blue-300"> GigaChad</span> • 
+                  <span className="text-blue-600 dark:text-blue-300"> Crypto Sigma</span> • 
+                  <span className="text-blue-600 dark:text-blue-300"> Blockchain Badass</span> • 
+                  <span className="text-blue-600 dark:text-blue-300"> Diamond Hander</span> • 
+                  <span className="text-blue-600 dark:text-blue-300"> Merkel Maverick</span> • 
+                  <span className="text-blue-600 dark:text-blue-300"> Hash Hoss</span>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
