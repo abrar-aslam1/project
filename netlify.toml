@@ -26,8 +26,10 @@
 
 [functions]
   node_bundler = "esbuild"
+  # Schedule the cleanup function to run daily at midnight UTC
+  included_files = ["netlify/functions/**"]
+  external_node_modules = ["@netlify/functions"]
 
-# Schedule the cleanup function to run daily at midnight UTC
 [[functions]]
   function = "cleanupOldMessages"
   schedule = "@daily"
