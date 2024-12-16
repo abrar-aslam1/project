@@ -48,9 +48,12 @@ const handler = async (event, context) => {
 
     // If no specific account is provided, use a random one
     const accounts = [
-      '@CryptoWizardd', '@Crypto_Jopp', '@TheCryptoKazi', '@AltcoinSensei',
-      '@AltcoinMiyagi', '@rare10x', '@CryptoTony__', '@CryptoShilllz',
-      '@alanrog3', '@ChadCaff', '@fitforcrypto_', '@luxe_spoon'
+      '@iWantCoinNews', '@IncomeSharks', '@ZssBecker', '@CryptoKaduna',
+      '@cryptostasher', '@ShazSMM', '@DogusJefferson', '@HawkOfCrypto',
+      '@SilverBulletBTC', '@Crypto_Alch', '@CryptoWizardd', '@Crypto_Jopp',
+      '@TheCryptoKazi', '@AltcoinSensei', '@AltcoinMiyagi', '@rare10x',
+      '@CryptoTony__', '@CryptoShilllz', '@alanrog3', '@ChadCaff',
+      '@fitforcrypto_', '@luxe_spoon'
     ];
     
     const selectedAccount = account || accounts[Math.floor(Math.random() * accounts.length)];

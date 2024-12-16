@@ -10,7 +10,7 @@ async function testLocalTwitterAPI() {
         'Content-Type': 'application/json',
       },
       data: {
-        user_input: '@CryptoWizardd'
+        user_input: '@SilverBulletBTC'
       }
     });
 

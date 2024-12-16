@@ -79,25 +79,25 @@ export function CallersHub() {
       description: "Most accurate and reliable crypto analysts",
       callers: [
         {
-          handle: '@CryptoWizardd',
-          followers: '125K',
-          performance: '+245% (30d)',
-          accuracy: '89%',
+          handle: '@SilverBulletBTC',
+          followers: '145K',
+          performance: '+265% (30d)',
+          accuracy: '91%',
           specialties: ['Bitcoin', 'Macro Analysis']
         },
         {
-          handle: '@Crypto_Jopp',
-          followers: '89K',
-          performance: '+180% (30d)',
-          accuracy: '85%',
-          specialties: ['Altcoins', 'Technical Analysis']
+          handle: '@IncomeSharks',
+          followers: '178K',
+          performance: '+210% (30d)',
+          accuracy: '88%',
+          specialties: ['Trading', 'Market Analysis']
         },
         {
-          handle: '@TheCryptoKazi',
-          followers: '76K',
-          performance: '+156% (30d)',
-          accuracy: '82%',
-          specialties: ['DeFi', 'NFTs']
+          handle: '@iWantCoinNews',
+          followers: '132K',
+          performance: '+195% (30d)',
+          accuracy: '87%',
+          specialties: ['News', 'Market Updates']
         }
       ]
     },
@@ -107,25 +107,25 @@ export function CallersHub() {
       description: "Expert chart analysis and trading signals",
       callers: [
         {
-          handle: '@AltcoinSensei',
-          followers: '92K',
-          performance: '+198% (30d)',
-          accuracy: '87%',
+          handle: '@CryptoKaduna',
+          followers: '98K',
+          performance: '+188% (30d)',
+          accuracy: '86%',
           specialties: ['Chart Patterns', 'Trading Setups']
         },
         {
-          handle: '@AltcoinMiyagi',
-          followers: '67K',
-          performance: '+167% (30d)',
-          accuracy: '84%',
-          specialties: ['Price Action', 'Risk Management']
+          handle: '@ZssBecker',
+          followers: '112K',
+          performance: '+175% (30d)',
+          accuracy: '85%',
+          specialties: ['Technical Analysis', 'Risk Management']
         },
         {
-          handle: '@CryptoTony__',
-          followers: '154K',
-          performance: '+210% (30d)',
-          accuracy: '88%',
-          specialties: ['Market Structure', 'Swing Trading']
+          handle: '@HawkOfCrypto',
+          followers: '95K',
+          performance: '+182% (30d)',
+          accuracy: '84%',
+          specialties: ['Market Structure', 'Price Action']
         }
       ]
     },
@@ -135,25 +135,25 @@ export function CallersHub() {
       description: "Early opportunities and market insights",
       callers: [
         {
-          handle: '@rare10x',
-          followers: '45K',
-          performance: '+289% (30d)',
-          accuracy: '79%',
-          specialties: ['Emerging Projects', 'IDOs']
-        },
-        {
-          handle: '@CryptoShilllz',
-          followers: '38K',
-          performance: '+145% (30d)',
-          accuracy: '76%',
-          specialties: ['Microcaps', 'Gem Hunting']
-        },
-        {
-          handle: '@alanrog3',
-          followers: '82K',
-          performance: '+178% (30d)',
+          handle: '@cryptostasher',
+          followers: '85K',
+          performance: '+225% (30d)',
           accuracy: '83%',
-          specialties: ['Layer 1s', 'Gaming']
+          specialties: ['Emerging Projects', 'Gem Hunting']
+        },
+        {
+          handle: '@ShazSMM',
+          followers: '76K',
+          performance: '+195% (30d)',
+          accuracy: '82%',
+          specialties: ['DeFi', 'New Listings']
+        },
+        {
+          handle: '@DogusJefferson',
+          followers: '92K',
+          performance: '+205% (30d)',
+          accuracy: '84%',
+          specialties: ['Altcoins', 'Market Opportunities']
         }
       ]
     }

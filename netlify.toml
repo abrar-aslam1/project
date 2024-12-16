@@ -26,3 +26,8 @@
 
 [functions]
   node_bundler = "esbuild"
+
+# Schedule the cleanup function to run daily at midnight UTC
+[[functions]]
+  function = "cleanupOldMessages"
+  schedule = "@daily"
