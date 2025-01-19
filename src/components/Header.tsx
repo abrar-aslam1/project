@@ -23,7 +23,7 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
 <Link to="/" className="flex items-center gap-2 text-left">
-  <img src="/tokenuer-logo.png" alt="Tokeneur Logo" width="32" height="32" />
+  <img src="/tokenuer-logo.png" alt="Tokeneur Logo" width="48" height="48" />
   <div>
     <h1 className="text-2xl font-bold gradient-text">
       Tokeneur<span className="text-xs align-super">™</span>
