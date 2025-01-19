@@ -29,7 +29,7 @@ export const handler = async function(event, context) {
 
     const options = {
       method: 'GET',
-      url: 'https://crypto-news16.p.rapidapi.com/news/top/5',
+      url: 'https://crypto-news16.p.rapidapi.com/news/top/10',
       headers: {
         'x-rapidapi-key': apiKey,
         'x-rapidapi-host': apiHost
