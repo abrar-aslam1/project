@@ -154,6 +154,13 @@ export function CallersHub() {
           performance: '+205% (30d)',
           accuracy: '84%',
           specialties: ['Altcoins', 'Market Opportunities']
+        },
+        {
+          handle: '@MMCrypto',
+          followers: '120K',
+          performance: '+230% (30d)',
+          accuracy: '89%',
+          specialties: ['Technical Analysis', 'Market Trends']
         }
       ]
     }
