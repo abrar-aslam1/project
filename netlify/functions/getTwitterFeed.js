@@ -50,7 +50,7 @@ const handler = async (event, context) => {
     const accounts = [
       '@iWantCoinNews', '@IncomeSharks', '@ZssBecker', '@CryptoKaduna',
       '@cryptostasher', '@ShazSMM', '@DogusJefferson', '@HawkOfCrypto',
-      '@SilverBulletBTC', '@Crypto_Alch', '@CryptoWizardd', '@Crypto_Jopp',
+      '@MMCrypto', '@SilverBulletBTC', '@Crypto_Alch', '@CryptoWizardd', '@Crypto_Jopp',
       '@TheCryptoKazi', '@AltcoinSensei', '@AltcoinMiyagi', '@rare10x',
       '@CryptoTony__', '@CryptoShilllz', '@alanrog3', '@ChadCaff',
       '@fitforcrypto_', '@luxe_spoon'
