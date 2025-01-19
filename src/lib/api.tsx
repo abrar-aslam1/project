@@ -156,12 +156,15 @@ export async function fetchAllNews(category?: string, subCategory?: string): Pro
 
     // If category is social, only fetch tweets
     if (category === 'social') {
-      if (subCategory && subCategory.startsWith('@')) {
-        const tweets = await fetchTwitterFeed(subCategory);
-        console.log(`Successfully fetched ${tweets.length} tweets for ${subCategory}`);
-        return tweets;
-      }
-      const tweets = await fetchTwitterFeed();
+    if (subCategory) {
+      // Remove any @ symbols from the account name
+      const account = subCategory.replace('@', '');
+      const tweets = await fetchTwitterFeed(`@${account}`);
+      console.log(`Successfully fetched ${tweets.length} tweets for @${account}`);
+      return tweets;
+    }
+    // Fetch default Twitter feed
+    const tweets = await fetchTwitterFeed();
       console.log(`Successfully fetched ${tweets.length} tweets`);
       return tweets;
     }
