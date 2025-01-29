@@ -195,9 +195,6 @@ export function CallersHub() {
     prefetchTweets();
   }, [queryClient]);
 
-  const handleCallerClick = (handle: string) => {
-    setSelectedCaller(selectedCaller === handle ? null : handle);
-  };
 
   const filteredGroups = callerGroups.map(group => ({
     ...group,
@@ -254,15 +251,12 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
                 className="absolute inset-0 z-10"
                 aria-label={`View ${caller.handle}'s profile`}
               />
-              <button
-                onClick={() => handleCallerClick(caller.handle)}
+              <div
                 className={`w-full group flex ${viewMode === 'list' ? 'flex-row items-center justify-between' : 'flex-col'} 
                   p-4 rounded-lg transition-all
                   bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
                   hover:border-purple-300 dark:hover:border-purple-700
-                  hover:shadow-md
-                  ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
-                disabled={isLoading || isPrefetching}
+                  hover:shadow-md`}
               >
                 <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
                   <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
@@ -273,13 +267,8 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
                 </div>
                 <div className="flex items-center gap-2">
                   <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  {isSelected ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
                 </div>
-              </button>
+              </div>
             </div>
           </HoverCardTrigger>
           <HoverCardContent className="w-80">
@@ -293,25 +282,23 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
           </HoverCardContent>
         </HoverCard>
 
-        {isSelected && (
-          <div className="pl-4 border-l-2 border-purple-600 dark:border-purple-400 space-y-4">
-            {isLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-              </div>
-            ) : tweets.length > 0 ? (
-              <div className="space-y-4">
-                {filterTickerTweets(tweets).map((tweet) => (
-                  <TweetCard key={tweet.id} tweet={tweet} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500 dark:text-gray-400">No tweets available</p>
-            )}
-          </div>
-        )}
+        <div className="mt-4 space-y-4">
+          {isFetching ? (
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          ) : tweets.length > 0 ? (
+            <div className="space-y-4">
+              {filterTickerTweets(tweets).map((tweet) => (
+                <TweetCard key={tweet.id} tweet={tweet} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">No ticker symbol calls found</p>
+          )}
+        </div>
       </div>
     );
   };

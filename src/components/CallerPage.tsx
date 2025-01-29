@@ -19,9 +19,11 @@ interface Tweet {
   };
 }
 
-// Filter function for ticker symbol tweets (reused from CallersHub)
+// Filter function for ticker symbol tweets with a limit of 20
 const filterTickerTweets = (tweets: Tweet[]): Tweet[] => {
-  return tweets.filter(tweet => /^\$[A-Za-z]{3,5}\b/.test(tweet.description));
+  return tweets
+    .filter(tweet => /^\$[A-Za-z]{3,5}\b/.test(tweet.description))
+    .slice(0, 20); // Show up to 20 tweets on individual caller pages
 };
 
 // Get caller data from handle
@@ -174,7 +176,10 @@ export function CallerPage() {
         </div>
       </Card>
 
-      <h2 className="text-2xl font-bold mb-6">Ticker Symbol Calls</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">Ticker Symbol Calls</h2>
+        <span className="text-sm text-gray-500">Showing up to 20 recent calls</span>
+      </div>
       
       {isFetchingTweets ? (
         <div className="space-y-4">
