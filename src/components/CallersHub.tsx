@@ -238,11 +238,13 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
   );
 
   const CallerCard = ({ caller }: { caller: Caller }) => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const isSelected = selectedCaller === caller.handle;
     const isLoading = isSelected && (isFetchingTweets || isFetching);
+    const filteredTweetCount = filterTickerTweets(tweets).length;
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         <HoverCard>
           <HoverCardTrigger asChild>
             <div className="relative">
@@ -282,23 +284,39 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
           </HoverCardContent>
         </HoverCard>
 
-        <div className="mt-4 space-y-4">
-          {isFetching ? (
-            <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
+        {tweets.length > 0 && (
+          <div className="mt-2">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/50 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              <span>{filteredTweetCount} Recent Calls</span>
+              {isDropdownOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
+            
+            <div className={`mt-2 space-y-2 transition-all duration-200 ease-in-out ${isDropdownOpen ? 'opacity-100 max-h-[1000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+              {isFetching ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </div>
+              ) : filterTickerTweets(tweets).length > 0 ? (
+                <div className="space-y-2">
+                  {filterTickerTweets(tweets).map((tweet) => (
+                    <TweetCard key={tweet.id} tweet={tweet} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400 p-4">No ticker symbol calls found</p>
+              )}
             </div>
-          ) : tweets.length > 0 ? (
-            <div className="space-y-4">
-              {filterTickerTweets(tweets).map((tweet) => (
-                <TweetCard key={tweet.id} tweet={tweet} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No ticker symbol calls found</p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   };
