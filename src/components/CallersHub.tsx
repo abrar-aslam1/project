@@ -262,9 +262,26 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
               >
                 <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
                   <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span>{caller.followers} followers</span>
-                    <span className="text-green-500">{caller.performance}</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <span>{caller.followers} followers</span>
+                      <span className="text-green-500">{caller.performance}</span>
+                    </div>
+                    {tweets.length > 0 && filterTickerTweets(tweets).length > 0 && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">Recent calls:</span>
+                        <div className="flex gap-1">
+                          {filterTickerTweets(tweets).map((tweet) => {
+                            const symbol = tweet.description.match(/^\$[A-Za-z]{3,5}\b/)?.[0];
+                            return symbol ? (
+                              <span key={tweet.id} className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded text-xs font-medium">
+                                {symbol}
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
