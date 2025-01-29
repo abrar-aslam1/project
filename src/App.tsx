@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Lazy load components for better initial load performance
 const Home = lazy(() => import('./components/Home').then(module => ({ default: module.Home })));
 const CallersHub = lazy(() => import('./components/CallersHub').then(module => ({ default: module.CallersHub })));
+const CallerPage = lazy(() => import('./components/CallerPage').then(module => ({ default: module.CallerPage })));
 const Tools = lazy(() => import('./components/Tools'));
 const Community = lazy(() => import('./components/Community'));
 
@@ -81,6 +82,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/callers" element={<CallersHub />} />
+                  <Route path="/caller/:handle" element={<CallerPage />} />
                   <Route path="/tools" element={<Tools />} />
                   <Route path="/community" element={<Community />} />
                 </Routes>

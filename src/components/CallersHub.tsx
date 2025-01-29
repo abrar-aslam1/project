@@ -1,5 +1,6 @@
 import { Users, Star, TrendingUp, ChartBar, Search, Grid, List, ExternalLink, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Input } from "./ui/input";
 import { Toggle } from "./ui/toggle";
@@ -208,7 +209,14 @@ export function CallersHub() {
     )
   })).filter(group => group.callers.length > 0);
 
-  const TweetCard = ({ tweet }: { tweet: Tweet }) => (
+  // Filter function for ticker symbol tweets
+const filterTickerTweets = (tweets: Tweet[]): Tweet[] => {
+  return tweets
+    .filter(tweet => /^\$[A-Za-z]{3,5}\b/.test(tweet.description))
+    .slice(0, 3); // Limit to 3 posts
+};
+
+const TweetCard = ({ tweet }: { tweet: Tweet }) => (
     <div className="p-4 rounded-lg bg-white/5 border border-gray-800 space-y-2">
       <p className="text-sm text-gray-300">{tweet.description}</p>
       <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -240,32 +248,39 @@ export function CallersHub() {
       <div className="space-y-4">
         <HoverCard>
           <HoverCardTrigger asChild>
-            <button
-              onClick={() => handleCallerClick(caller.handle)}
-              className={`w-full group flex ${viewMode === 'list' ? 'flex-row items-center justify-between' : 'flex-col'} 
-                p-4 rounded-lg transition-all
-                bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-                hover:border-purple-300 dark:hover:border-purple-700
-                hover:shadow-md
-                ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
-              disabled={isLoading || isPrefetching}
-            >
-              <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
-                <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span>{caller.followers} followers</span>
-                  <span className="text-green-500">{caller.performance}</span>
+            <div className="relative">
+              <Link 
+                to={`/caller/${encodeURIComponent(caller.handle)}`}
+                className="absolute inset-0 z-10"
+                aria-label={`View ${caller.handle}'s profile`}
+              />
+              <button
+                onClick={() => handleCallerClick(caller.handle)}
+                className={`w-full group flex ${viewMode === 'list' ? 'flex-row items-center justify-between' : 'flex-col'} 
+                  p-4 rounded-lg transition-all
+                  bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                  hover:border-purple-300 dark:hover:border-purple-700
+                  hover:shadow-md
+                  ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
+                disabled={isLoading || isPrefetching}
+              >
+                <div className={`flex ${viewMode === 'list' ? 'items-center gap-4' : 'flex-col gap-2'}`}>
+                  <span className="font-semibold text-purple-600 dark:text-purple-400">{caller.handle}</span>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span>{caller.followers} followers</span>
+                    <span className="text-green-500">{caller.performance}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                {isSelected ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </div>
-            </button>
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {isSelected ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </button>
+            </div>
           </HoverCardTrigger>
           <HoverCardContent className="w-80">
             <div className="space-y-2">
@@ -288,7 +303,7 @@ export function CallersHub() {
               </div>
             ) : tweets.length > 0 ? (
               <div className="space-y-4">
-                {tweets.map((tweet) => (
+                {filterTickerTweets(tweets).map((tweet) => (
                   <TweetCard key={tweet.id} tweet={tweet} />
                 ))}
               </div>
@@ -307,10 +322,10 @@ export function CallersHub() {
         <div className="p-6 rounded-lg bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800">
           <div className="flex items-center gap-3 mb-4">
             <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-            <h2 className="text-2xl font-bold text-purple-600 dark:text-purple-400">Callers Hub</h2>
+            <h2 className="text-2xl font-bold text-purple-600 dark:text-purple-400">$Call Hub</h2>
           </div>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Follow top crypto callers and their latest market insights. Track their calls, analysis, and trading strategies in real-time.
+            Track real-time crypto calls and market insights. Filter by ticker symbols and follow top analysts' trading strategies.
           </p>
           {isPrefetching && (
             <div className="mt-4 space-y-2">

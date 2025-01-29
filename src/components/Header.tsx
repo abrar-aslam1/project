@@ -34,10 +34,8 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link to="/" className="text-sm font-medium hover:text-purple-400 transition-colors">News</Link>
-              <Link to="/callers" className="text-sm font-medium hover:text-purple-400 transition-colors">Callers Hub</Link>
+              <Link to="/callers" className="text-sm font-medium hover:text-purple-400 transition-colors">$Call Hub</Link>
               <Link to="/tools" className="text-sm font-medium hover:text-purple-400 transition-colors">Tools</Link>
-              <Link to="/community" className="text-sm font-medium hover:text-purple-400 transition-colors">Community</Link>
-              <Link to="/merch" className="text-sm font-medium hover:text-purple-400 transition-colors">Merch</Link>
               <Link to="/exchange" className="text-sm font-medium hover:text-purple-400 transition-colors">Exchange Finder</Link>
             </nav>
           </div>
@@ -81,7 +79,7 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
                     className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Callers Hub
+                    $Call Hub
                   </Link>
                   <Link 
                     to="/tools" 
@@ -89,20 +87,6 @@ export function Header({ isDarkMode, onToggleDarkMode, onOpenPreferences }: Head
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tools
-                  </Link>
-                  <Link 
-                    to="/community" 
-                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Community
-                  </Link>
-                  <Link 
-                    to="/merch" 
-                    className="text-lg font-medium hover:text-purple-400 transition-colors p-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Merch
                   </Link>
                   <Link 
                     to="/exchange" 
