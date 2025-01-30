@@ -11,13 +11,6 @@ const StyledToggle = styled.div`
     --toggle-width: 10em;
     --toggle-height: 4em;
     --toggle-offset: calc((var(--toggle-height) - 3em) / 2);
-    --toggle-bg: linear-gradient(180deg, 
-      #0a0426 0%,
-      #1a0f3c 25%,
-      #2d1558 50%,
-      #1a0f3c 75%,
-      #0a0426 100%
-    );
     --radius: 99em;
     --transition: 0.4s;
     font-size: var(--toggle-size);
@@ -34,7 +27,13 @@ const StyledToggle = styled.div`
   .theme-toggle__container {
     width: var(--toggle-width);
     height: var(--toggle-height);
-    background: var(--toggle-bg);
+    background: linear-gradient(180deg, 
+      #7e9cd6 0%,
+      #a4c2f4 25%,
+      #c6dbff 50%,
+      #a4c2f4 75%,
+      #7e9cd6 100%
+    );
     border-radius: var(--radius);
     position: relative;
     transition: var(--transition);
@@ -42,14 +41,30 @@ const StyledToggle = styled.div`
     overflow: hidden;
   }
 
+  .theme-toggle__checkbox:checked + .theme-toggle__container {
+    background: linear-gradient(180deg, 
+      #0a0426 0%,
+      #1a0f3c 25%,
+      #2d1558 50%,
+      #1a0f3c 75%,
+      #0a0426 100%
+    );
+  }
+
   .theme-toggle__container::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 30% 50%, rgba(147, 51, 234, 0.15), transparent 50%),
-                radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.15), transparent 50%);
     opacity: 0.6;
     z-index: 1;
+    transition: var(--transition);
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2), transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.2), transparent 50%);
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container::before {
+    background: radial-gradient(circle at 30% 50%, rgba(147, 51, 234, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.15), transparent 50%);
   }
 
   .theme-toggle__scenery {
@@ -103,12 +118,13 @@ const StyledToggle = styled.div`
     position: absolute;
     border-radius: 50%;
     filter: blur(1em);
-    opacity: 0.15;
+    opacity: 0.1;
     background: radial-gradient(circle, var(--nebula-color) 0%, transparent 70%);
+    transition: all var(--transition);
   }
 
   .theme-toggle__nebula:nth-child(4) {
-    --nebula-color: #9333EA;
+    --nebula-color: #ffffff;
     width: 6em;
     height: 6em;
     left: -2em;
@@ -116,7 +132,7 @@ const StyledToggle = styled.div`
   }
 
   .theme-toggle__nebula:nth-child(5) {
-    --nebula-color: #3B82F6;
+    --nebula-color: #ffffff;
     width: 5em;
     height: 5em;
     right: -1em;
@@ -124,11 +140,26 @@ const StyledToggle = styled.div`
   }
 
   .theme-toggle__nebula:nth-child(6) {
-    --nebula-color: #EC4899;
+    --nebula-color: #ffffff;
     width: 4em;
     height: 4em;
     right: 30%;
     top: -1em;
+    opacity: 0.05;
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__nebula:nth-child(4) {
+    --nebula-color: #9333EA;
+    opacity: 0.15;
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__nebula:nth-child(5) {
+    --nebula-color: #3B82F6;
+    opacity: 0.15;
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__nebula:nth-child(6) {
+    --nebula-color: #EC4899;
     opacity: 0.1;
   }
 
@@ -169,8 +200,8 @@ const StyledToggle = styled.div`
     width: 3em;
     height: 20%;
     border-radius: 50%;
-    background: #1a0f3c;
-    box-shadow: 0.313em 0 3.125em #1a0f3c;
+    background: #7e9cd6;
+    box-shadow: 0.313em 0 3.125em #7e9cd6;
     opacity: 0.3;
     position: absolute;
     bottom: 0.5em;
@@ -180,13 +211,14 @@ const StyledToggle = styled.div`
     z-index: 1;
   }
 
+  .theme-toggle__checkbox:checked + .theme-toggle__container .logo-shadow {
+    background: #1a0f3c;
+    box-shadow: 0.313em 0 3.125em #1a0f3c;
+  }
+
   /* Checked state animations */
   .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__star {
     animation-duration: 2s;
-  }
-
-  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__nebula {
-    opacity: 0.25;
   }
 
   .theme-toggle__checkbox:checked + .theme-toggle__container .logo-container {
