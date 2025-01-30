@@ -7,10 +7,10 @@ interface ThemeToggleProps {
 
 const StyledToggle = styled.div`
   .theme-toggle {
-    --toggle-size: 16px;
-    --toggle-width: 10.625em;
-    --toggle-height: 5.625em;
-    --toggle-offset: calc((var(--toggle-height) - 4.375em) / 2);
+    --toggle-size: 14px;
+    --toggle-width: 12em;
+    --toggle-height: 4em;
+    --toggle-offset: calc((var(--toggle-height) - 3em) / 2);
     --toggle-bg: linear-gradient(#2c4770, #070e2b 35%, #628cac 50% 70%, #a6c5d4) no-repeat;
     --radius: 99em;
     --transition: 0.4s;
@@ -34,6 +34,7 @@ const StyledToggle = styled.div`
     border-radius: var(--radius);
     position: relative;
     transition: var(--transition);
+    perspective: 1000px;
   }
 
   .theme-toggle__scenery {
@@ -133,10 +134,11 @@ const StyledToggle = styled.div`
     position: absolute;
     top: calc(var(--toggle-offset));
     left: var(--toggle-offset);
-    width: 4.375em;
-    height: 4.375em;
+    width: 3em;
+    height: 3em;
     transition: var(--transition);
     z-index: 2;
+    transform-style: preserve-3d;
   }
 
   .logo {
@@ -144,12 +146,13 @@ const StyledToggle = styled.div`
     height: 100%;
     object-fit: contain;
     transition: var(--transition);
-    transform: rotate(0deg);
+    transform: rotateY(0deg);
+    backface-visibility: hidden;
   }
 
   .logo-shadow {
     content: "";
-    width: 4.375em;
+    width: 3em;
     height: 20%;
     border-radius: 50%;
     background: #3a271c;
@@ -181,15 +184,15 @@ const StyledToggle = styled.div`
   }
 
   .theme-toggle__checkbox:checked + .theme-toggle__container .logo-container {
-    left: calc(100% - 4.375em - var(--toggle-offset));
+    left: calc(100% - 3em - var(--toggle-offset));
   }
 
   .theme-toggle__checkbox:checked + .theme-toggle__container .logo {
-    transform: rotate(225deg);
+    transform: rotateY(180deg);
   }
 
   .theme-toggle__checkbox:checked + .theme-toggle__container .logo-shadow {
-    left: calc(100% - 4.375em - var(--toggle-offset) + 0.938em);
+    left: calc(100% - 3em - var(--toggle-offset) + 0.938em);
     transform: skew(70deg);
   }
 `;
