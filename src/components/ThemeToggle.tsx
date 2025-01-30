@@ -1,35 +1,93 @@
-import { Moon, Sun } from 'lucide-react';
-import { Button } from "../components/ui/button";
+import styled from 'styled-components';
 
 interface ThemeToggleProps {
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
 }
 
+const StyledToggle = styled.div`
+  .theme-toggle {
+    --toggle-size: 50px;
+    --transition: 300ms;
+  }
+
+  .theme-toggle__checkbox {
+    display: none;
+  }
+
+  .theme-toggle__container {
+    width: var(--toggle-size);
+    height: var(--toggle-size);
+    position: relative;
+    border-radius: 9999px;
+    cursor: pointer;
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+    transition: var(--transition);
+    perspective: 500px;
+    transform-style: preserve-3d;
+    overflow: hidden;
+  }
+
+  .dark .theme-toggle__container {
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.2));
+  }
+
+  .theme-toggle__container:hover {
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.2));
+  }
+
+  .dark .theme-toggle__container:hover {
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.3), rgba(59, 130, 246, 0.3));
+  }
+
+  .theme-toggle__logo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition);
+    backface-visibility: hidden;
+  }
+
+  .theme-toggle__logo img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .theme-toggle__logo--dark {
+    transform: rotateY(180deg);
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__logo--light {
+    transform: rotateY(180deg);
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__logo--dark {
+    transform: rotateY(0);
+  }
+`;
+
 export function ThemeToggle({ isDarkMode, onToggleDarkMode }: ThemeToggleProps) {
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={onToggleDarkMode}
-      className={`
-        w-[50px] h-[50px] rounded-full 
-        relative overflow-hidden
-        bg-gradient-to-br from-purple-500/10 to-blue-500/10 
-        hover:from-purple-500/20 hover:to-blue-500/20
-        dark:from-purple-400/20 dark:to-blue-400/20
-        dark:hover:from-purple-400/30 dark:hover:to-blue-400/30
-        transition-all duration-300
-        border-0
-      `}
-    >
-      <div className="absolute inset-0 flex items-center justify-center">
-        {isDarkMode ? (
-          <Moon className="h-5 w-5 text-purple-400 transition-all duration-300" />
-        ) : (
-          <Sun className="h-5 w-5 text-amber-500 transition-all duration-300" />
-        )}
-      </div>
-    </Button>
+    <StyledToggle>
+      <label className="theme-toggle">
+        <input 
+          type="checkbox" 
+          className="theme-toggle__checkbox" 
+          checked={isDarkMode}
+          onChange={onToggleDarkMode}
+        />
+        <div className="theme-toggle__container">
+          <div className="theme-toggle__logo theme-toggle__logo--light">
+            <img src="/tokenuer-logo.png" alt="Light mode" />
+          </div>
+          <div className="theme-toggle__logo theme-toggle__logo--dark">
+            <img src="/tokenuer-logo.png" alt="Dark mode" />
+          </div>
+        </div>
+      </label>
+    </StyledToggle>
   );
 }
