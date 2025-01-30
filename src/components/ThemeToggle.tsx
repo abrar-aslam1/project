@@ -8,10 +8,16 @@ interface ThemeToggleProps {
 const StyledToggle = styled.div`
   .theme-toggle {
     --toggle-size: 14px;
-    --toggle-width: 12em;
+    --toggle-width: 10em;
     --toggle-height: 4em;
     --toggle-offset: calc((var(--toggle-height) - 3em) / 2);
-    --toggle-bg: linear-gradient(#2c4770, #070e2b 35%, #628cac 50% 70%, #a6c5d4) no-repeat;
+    --toggle-bg: linear-gradient(180deg, 
+      #0a0426 0%,
+      #1a0f3c 25%,
+      #2d1558 50%,
+      #1a0f3c 75%,
+      #0a0426 100%
+    );
     --radius: 99em;
     --transition: 0.4s;
     font-size: var(--toggle-size);
@@ -29,12 +35,21 @@ const StyledToggle = styled.div`
     width: var(--toggle-width);
     height: var(--toggle-height);
     background: var(--toggle-bg);
-    background-size: 100% 11.25em;
-    background-position-y: -5.625em;
     border-radius: var(--radius);
     position: relative;
     transition: var(--transition);
     perspective: 1000px;
+    overflow: hidden;
+  }
+
+  .theme-toggle__container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(147, 51, 234, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.15), transparent 50%);
+    opacity: 0.6;
+    z-index: 1;
   }
 
   .theme-toggle__scenery {
@@ -46,85 +61,75 @@ const StyledToggle = styled.div`
     border-radius: inherit;
   }
 
-  .theme-toggle__scenery::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 30%;
-    bottom: 0;
-    background: #b18d71;
-    z-index: 1;
-  }
-
   .theme-toggle__star {
     position: absolute;
-    width: 0.063em;
-    height: 0.063em;
     background: #fff;
     border-radius: var(--radius);
     filter: drop-shadow(0 0 0.063em #fff);
-    color: #fff;
-    top: 100%;
+    opacity: 0;
+    animation: twinkle 4s infinite;
   }
 
   .theme-toggle__star:nth-child(1) {
-    left: 3.75em;
-    box-shadow: 1.25em 0.938em, -1.25em 2.5em, 0 1.25em, 1.875em 0.625em,
-      -3.125em 1.875em, 1.25em 2.813em;
-    transition: 0.2s;
+    width: 0.125em;
+    height: 0.125em;
+    left: 15%;
+    top: 30%;
+    animation-delay: 0s;
   }
 
   .theme-toggle__star:nth-child(2) {
-    left: 4.688em;
-    box-shadow: 0.625em 0, 0 0.625em, -0.625em -0.625em, 0.625em 0.938em,
-      -3.125em 1.25em, 1.25em -1.563em;
-    transition: 0.3s;
+    width: 0.0875em;
+    height: 0.0875em;
+    left: 45%;
+    top: 20%;
+    animation-delay: 0.3s;
   }
 
   .theme-toggle__star:nth-child(3) {
-    left: 5.313em;
-    box-shadow: -0.625em -0.625em, -2.188em 1.25em, -2.188em 0, -3.75em -0.625em,
-      -3.125em -0.625em, -2.5em -0.313em, 0.75em -0.625em;
-    transition: var(--transition);
+    width: 0.1em;
+    height: 0.1em;
+    left: 75%;
+    top: 35%;
+    animation-delay: 0.6s;
   }
 
-  .theme-toggle__cloud {
-    z-index: 1;
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  .theme-toggle__nebula {
     position: absolute;
     border-radius: 50%;
+    filter: blur(1em);
+    opacity: 0.15;
+    background: radial-gradient(circle, var(--nebula-color) 0%, transparent 70%);
   }
 
-  .theme-toggle__cloud:nth-last-child(1) {
-    width: 0.875em;
-    height: 0.625em;
-    filter: blur(0.125em) drop-shadow(0.313em 0.313em #ffffffae)
-      drop-shadow(-0.625em 0 #fff) drop-shadow(-0.938em -0.125em #fff);
-    right: 1.875em;
-    top: 2.813em;
-    background: linear-gradient(to top right, #ffffffae, #ffffffae);
-    transition: var(--transition);
+  .theme-toggle__nebula:nth-child(4) {
+    --nebula-color: #9333EA;
+    width: 6em;
+    height: 6em;
+    left: -2em;
+    top: -2em;
   }
 
-  .theme-toggle__cloud:nth-last-child(2) {
-    top: 0.625em;
-    right: 4.375em;
-    width: 0.875em;
-    height: 0.375em;
-    background: #dfdedeae;
-    filter: blur(0.125em) drop-shadow(-0.313em -0.188em #e0dfdfae)
-      drop-shadow(-0.625em -0.188em #bbbbbbae) drop-shadow(-1em 0.063em #cfcfcfae);
-    transition: 0.6s;
+  .theme-toggle__nebula:nth-child(5) {
+    --nebula-color: #3B82F6;
+    width: 5em;
+    height: 5em;
+    right: -1em;
+    bottom: -1em;
   }
 
-  .theme-toggle__cloud:nth-last-child(3) {
-    top: 1.25em;
-    right: 0.938em;
-    width: 0.875em;
-    height: 0.375em;
-    background: #ffffffae;
-    filter: blur(0.125em) drop-shadow(0.438em 0.188em #ffffffae)
-      drop-shadow(-0.625em 0.313em #ffffffae);
-    transition: 0.8s;
+  .theme-toggle__nebula:nth-child(6) {
+    --nebula-color: #EC4899;
+    width: 4em;
+    height: 4em;
+    right: 30%;
+    top: -1em;
+    opacity: 0.1;
   }
 
   .logo-container {
@@ -146,8 +151,17 @@ const StyledToggle = styled.div`
     height: 100%;
     object-fit: contain;
     transition: var(--transition);
-    transform: rotateY(0deg);
+    position: absolute;
     backface-visibility: hidden;
+  }
+
+  .logo--light {
+    transform: rotateY(0deg);
+  }
+
+  .logo--dark {
+    transform: rotateY(180deg);
+    filter: brightness(0.8) contrast(1.2);
   }
 
   .logo-shadow {
@@ -155,11 +169,11 @@ const StyledToggle = styled.div`
     width: 3em;
     height: 20%;
     border-radius: 50%;
-    background: #3a271c;
-    box-shadow: 0.313em 0 3.125em #3a271c;
-    opacity: 0.25;
+    background: #1a0f3c;
+    box-shadow: 0.313em 0 3.125em #1a0f3c;
+    opacity: 0.3;
     position: absolute;
-    bottom: 0;
+    bottom: 0.5em;
     left: calc(var(--toggle-offset) - 0.938em);
     transition: var(--transition);
     transform: skew(-70deg);
@@ -167,33 +181,30 @@ const StyledToggle = styled.div`
   }
 
   /* Checked state animations */
-  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__star:nth-child(1) {
-    top: 0.625em;
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__star {
+    animation-duration: 2s;
   }
 
-  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__star:nth-child(2) {
-    top: 1.875em;
-  }
-
-  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__star:nth-child(3) {
-    top: 1.25em;
-  }
-
-  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__cloud {
-    right: -100%;
+  .theme-toggle__checkbox:checked + .theme-toggle__container .theme-toggle__nebula {
+    opacity: 0.25;
   }
 
   .theme-toggle__checkbox:checked + .theme-toggle__container .logo-container {
     left: calc(100% - 3em - var(--toggle-offset));
   }
 
-  .theme-toggle__checkbox:checked + .theme-toggle__container .logo {
+  .theme-toggle__checkbox:checked + .theme-toggle__container .logo--light {
     transform: rotateY(180deg);
+  }
+
+  .theme-toggle__checkbox:checked + .theme-toggle__container .logo--dark {
+    transform: rotateY(360deg);
   }
 
   .theme-toggle__checkbox:checked + .theme-toggle__container .logo-shadow {
     left: calc(100% - 3em - var(--toggle-offset) + 0.938em);
     transform: skew(70deg);
+    opacity: 0.4;
   }
 `;
 
@@ -212,12 +223,13 @@ export function ThemeToggle({ isDarkMode, onToggleDarkMode }: ThemeToggleProps) 
             <div className="theme-toggle__star" />
             <div className="theme-toggle__star" />
             <div className="theme-toggle__star" />
-            <div className="theme-toggle__cloud" />
-            <div className="theme-toggle__cloud" />
-            <div className="theme-toggle__cloud" />
+            <div className="theme-toggle__nebula" />
+            <div className="theme-toggle__nebula" />
+            <div className="theme-toggle__nebula" />
           </div>
           <div className="logo-container">
-            <img src="/tokenuer-logo.png" alt="Theme toggle" className="logo" />
+            <img src="/tokenuer-logo.png" alt="Light mode" className="logo logo--light" />
+            <img src="/tokenuer-logo.png" alt="Dark mode" className="logo logo--dark" />
           </div>
           <div className="artificial__hidden">
             <div className="logo-shadow" />
