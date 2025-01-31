@@ -82,7 +82,7 @@ export const NewsCard = memo(function NewsCard({ article }: NewsCardProps) {
             {source}
           </span>
         </div>
-        <CardTitle className="text-base sm:text-xl font-bold leading-tight hover:text-purple-600 dark:hover:text-purple-400 transition-colors line-clamp-2">
+        <CardTitle className="text-base sm:text-xl font-bold leading-tight text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors line-clamp-2">
           {displayTitle}
         </CardTitle>
       </CardHeader>

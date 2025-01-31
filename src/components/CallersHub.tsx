@@ -214,9 +214,9 @@ const filterTickerTweets = (tweets: Tweet[]): Tweet[] => {
 };
 
 const TweetCard = ({ tweet }: { tweet: Tweet }) => (
-    <div className="p-4 rounded-lg bg-white/5 border border-gray-800 space-y-2">
-      <p className="text-sm text-gray-300">{tweet.description}</p>
-      <div className="flex items-center gap-4 text-xs text-gray-500">
+    <div className="p-4 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 space-y-2">
+      <p className="text-sm text-gray-700 dark:text-gray-300">{tweet.description}</p>
+      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
         <span>{new Date(tweet.publishedAt).toLocaleDateString()}</span>
         {tweet.metrics && (
           <>
@@ -305,7 +305,7 @@ const TweetCard = ({ tweet }: { tweet: Tweet }) => (
           <div className="mt-2">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/50 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/50 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               <span>{filteredTweetCount} Recent Calls</span>
               {isDropdownOpen ? (
